@@ -1,0 +1,15 @@
+.git
+node_modules
+.expo
+eas-archive
+dist
+web-build
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+.env*.local
+*.tsbuildinfo
+ios
+android
