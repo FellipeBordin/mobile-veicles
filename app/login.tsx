@@ -1,7 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  TextInputProps,
+} from "react-native";
 import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
 
@@ -13,11 +20,12 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert("Atenção", "Preencha e-mail e senha.");
+    const error = validateLogin(email, password);
+    if (error) {
+      Alert.alert("Erro", error);
       return;
     }
-
+   
     setLoading(true);
 
     try {
@@ -40,11 +48,22 @@ export default function LoginScreen() {
       await setUser(data.user);
 
       router.replace("/");
-    } catch {
+    } catch (error) {
+      console.error("Login error:", error);
       Alert.alert("Erro", "Não foi possível fazer login.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function validateLogin(email:string, password:string) {
+    if(!email.trim() || !password.trim()) {
+      return "Preencha e-mail e senha.";
+  }
+  if(!isvalidEmail(email)){
+    return "Digite um e-mail válido.";
+  }
+  return null;
   }
 
   function goToForgotPassword() {
@@ -155,12 +174,15 @@ export default function LoginScreen() {
   );
 }
 
-function Field(props: any) {
+type FieldProps = TextInputProps & {
+  label: string;
+};
+function Field({ label, ...inputProps }: FieldProps) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
+      <Text style={{ fontWeight: "700", color: "#333" }}>{label}</Text>
       <TextInput
-        {...props}
+        {...inputProps}
         placeholderTextColor="#999"
         style={{
           borderWidth: 1,
@@ -174,3 +196,8 @@ function Field(props: any) {
     </View>
   );
 }
+function isvalidEmail(email: string) {
+  const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
+  return re.test(String(email).toLowerCase());
+}
+
