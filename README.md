@@ -1,8 +1,6 @@
----
-
 # 📱 README — MOBILE (Expo)
 
-```md
+````md
 # 📱 Vehicle Finance App
 
 Aplicativo mobile para controle de compra, despesas e venda de veículos.
@@ -22,7 +20,6 @@ Aplicativo mobile para controle de compra, despesas e venda de veículos.
 ## 📦 Instalação
 
 ```bash
-git clone <SEU_REPO>
 cd vehicle-mobile-app
 npm install
 
@@ -61,3 +58,4 @@ Token salvo no AsyncStorage
 Rotas protegidas com layout global
 Comunicação via fetch + Authorization
 ```
+````
