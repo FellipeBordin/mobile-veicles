@@ -1,7 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  TextInputProps,
+} from "react-native";
 import { apiFetch } from "../src/lib/api";
 
 export default function NewVehicle() {
@@ -13,22 +20,41 @@ export default function NewVehicle() {
   const [previousOwnerPhone, setPreviousOwnerPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function normalizeCurrency(value: string) {
+    return value.trim().replace(/\./g, "").replace(",", ".");
+  }
+
+  function isValidPlate(plate: string) {
+    const oldplate = /^[A-Z]{3}[0-9]{4}$/;
+    const mercosulPlate = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/;
+
+    return oldplate.test(plate) || mercosulPlate.test(plate);
+  }
+
   async function save() {
+    const purchasePriceValue = Number.parseFloat(
+      normalizeCurrency(purchasePrice),
+    );
     const payload = {
       name: name.trim(),
       plate: plate.trim().toUpperCase(),
-      purchasePrice: Number(purchasePrice),
+      purchasePrice: purchasePriceValue,
       previousOwnerName: previousOwnerName.trim(),
       previousOwnerPhone: previousOwnerPhone.trim(),
     };
 
-    if (
-      !payload.name ||
-      !payload.plate ||
-      !Number.isFinite(payload.purchasePrice) ||
-      payload.purchasePrice <= 0
-    ) {
-      Alert.alert("Atenção", "Preencha nome, placa e preço corretamente.");
+    if (!payload.name || !payload.plate) {
+      Alert.alert("Atenção", "Preencha o nome e a placa do veículo.");
+      return;
+    }
+
+    if (!isValidPlate(payload.plate)) {
+      Alert.alert("Atenção", "Placa inválida.");
+      return;
+    }
+
+    if (!Number.isFinite(purchasePriceValue) || purchasePriceValue <= 0) {
+      Alert.alert("Atenção", "Preencha o preço de compra corretamente.");
       return;
     }
 
@@ -122,6 +148,7 @@ export default function NewVehicle() {
           onChangeText={setPlate}
           placeholder="Digite a placa do veículo"
           autoCapitalize="characters"
+          onBlur={() => setPlate((plate) => plate.trim().toUpperCase())}
         />
 
         <Field
@@ -174,13 +201,16 @@ export default function NewVehicle() {
     </View>
   );
 }
+type FieldProps = TextInputProps & {
+  label: string;
+};
 
-function Field(props: any) {
+function Field({ label, ...inputProps }: FieldProps) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
+      <Text style={{ fontWeight: "700", color: "#333" }}>{label}</Text>
       <TextInput
-        {...props}
+        {...inputProps}
         placeholderTextColor="#999"
         style={{
           borderWidth: 1,
