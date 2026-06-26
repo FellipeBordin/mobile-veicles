@@ -1,7 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  TextInputProps,
+} from "react-native";
 import { apiFetch } from "../src/lib/api";
 
 export default function ForgotPasswordScreen() {
@@ -12,6 +19,11 @@ export default function ForgotPasswordScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function isValidEmail(email: string) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   async function handleResetPassword() {
     const normalizedEmail = email.trim().toLowerCase();
     const password = newPassword.trim();
@@ -19,6 +31,11 @@ export default function ForgotPasswordScreen() {
 
     if (!normalizedEmail || !password || !confirm) {
       Alert.alert("Atenção", "Preencha e-mail, nova senha e confirmação.");
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      Alert.alert("Atenção", "Informe um e-mail válido.");
       return;
     }
 
@@ -52,7 +69,8 @@ export default function ForgotPasswordScreen() {
 
       Alert.alert("Sucesso", "Senha alterada com sucesso.");
       router.replace("/login");
-    } catch {
+    } catch (error) {
+      console.log("Reset password error", error);
       Alert.alert("Erro", "Não foi possível resetar a senha.");
     } finally {
       setLoading(false);
@@ -162,12 +180,16 @@ export default function ForgotPasswordScreen() {
   );
 }
 
-function Field(props: any) {
+type FieldProps = TextInputProps & {
+  label: string;
+};
+
+function Field({ label, ...inputProps }: FieldProps) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
+      <Text style={{ fontWeight: "700", color: "#333" }}>{label}</Text>
       <TextInput
-        {...props}
+        {...inputProps}
         placeholderTextColor="#999"
         style={{
           borderWidth: 1,

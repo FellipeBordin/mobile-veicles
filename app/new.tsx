@@ -26,7 +26,7 @@ export default function NewVehicle() {
 
   function isValidPlate(plate: string) {
     const oldplate = /^[A-Z]{3}[0-9]{4}$/;
-    const mercosulPlate = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/;
+    const mercosulPlate = /^[0-9][A-Z]{3}[A-Z][0-9]{2}$/;
 
     return oldplate.test(plate) || mercosulPlate.test(plate);
   }
