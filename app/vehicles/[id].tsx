@@ -1,10 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 "use client";
+import { Vehicle } from "../../src/types/veicles";
+import { ExpenseItem } from "../../src/components/vehicle/ExpenseItem";
 
+import { deleteExpenseById } from "../../src/service/expenseService";
+import { MiniInfoCard } from "../../src/components/vehicle/MiniInfoCard";
+import { InfoBlock } from "../../src/components/vehicle/InfoBlock";
+import { formatBRL, formatDate } from "../../src/utils/formatters";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
+import {
+  deleteVehicleById,
+  getVehicleById,
+} from "../../src/service/vehicleService";
 import {
   Alert,
   Platform,
@@ -13,51 +23,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { apiFetch } from "../../src/lib/api";
-
-type Expense = {
-  id: string;
-  amount: number;
-  note?: string | null;
-  createdAt: string;
-};
-
-type Vehicle = {
-  id: string;
-  name: string;
-  plate: string;
-  status: "IN_STOCK" | "SOLD";
-  purchasePrice: number;
-  purchaseDate?: string | null;
-  previousOwnerName?: string | null;
-  previousOwnerPhone?: string | null;
-  soldPrice?: number | null;
-  soldDate?: string | null;
-  buyerName?: string | null;
-  buyerPhone?: string | null;
-  totalExpenses: number;
-  totalInvested: number;
-  profit?: number | null;
-  createdAt: string;
-  expenses: Expense[];
-};
-
-function formatBRL(value: number) {
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
-
-function formatDate(value?: string | null) {
-  if (!value) return "-";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return "-";
-
-  return date.toLocaleDateString("pt-BR");
-}
 
 export default function VehicleDetailScreen() {
   const router = useRouter();
@@ -76,7 +41,7 @@ export default function VehicleDetailScreen() {
     try {
       setLoading(true);
 
-      const res = await apiFetch(`/api/vehicles/${id}`);
+      const res = await getVehicleById(id);
       const data = await res.json().catch(() => null);
 
       if (res.status === 401) {
@@ -139,10 +104,8 @@ export default function VehicleDetailScreen() {
     try {
       setDeleting(true);
 
-      const res = await apiFetch(`/api/vehicles/${vehicle.id}`, {
-        method: "DELETE",
-      });
-
+      const vehicleId = vehicle.id ?? id;
+      const res = await deleteVehicleById(vehicleId as string);
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
@@ -192,9 +155,7 @@ export default function VehicleDetailScreen() {
     try {
       setDeletingExpenseId(expenseId);
 
-      const res = await apiFetch(`/api/expenses/${expenseId}`, {
-        method: "DELETE",
-      });
+      const res = await deleteExpenseById(expenseId);
 
       const data = await res.json().catch(() => ({}));
 
@@ -548,167 +509,5 @@ export default function VehicleDetailScreen() {
         <Text style={{ color: "#111", fontWeight: "700" }}>Voltar</Text>
       </Pressable>
     </ScrollView>
-  );
-}
-
-function MiniInfoCard({
-  icon,
-  label,
-  value,
-  bg,
-  iconColor,
-}: {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  label: string;
-  value: string;
-  bg: string;
-  iconColor: string;
-}) {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: bg,
-        borderRadius: 14,
-        padding: 12,
-        gap: 8,
-      }}
-    >
-      <MaterialIcons name={icon} size={22} color={iconColor} />
-      <Text style={{ fontSize: 15, fontWeight: "800", color: "#111" }}>
-        {value}
-      </Text>
-      <Text style={{ fontSize: 12, color: "#555" }}>{label}</Text>
-    </View>
-  );
-}
-
-function InfoBlock({
-  title,
-  rows,
-}: {
-  title: string;
-  rows: { label: string; value: string }[];
-}) {
-  return (
-    <View
-      style={{
-        backgroundColor: "#f9fafb",
-        borderRadius: 16,
-        padding: 14,
-        gap: 8,
-      }}
-    >
-      <Text style={{ fontSize: 16, fontWeight: "800", color: "#111" }}>
-        {title}
-      </Text>
-
-      {rows.map((row) => (
-        <View
-          key={row.label}
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            gap: 12,
-          }}
-        >
-          <Text style={{ color: "#444", flex: 1 }}>{row.label}</Text>
-          <Text
-            style={{
-              fontWeight: "700",
-              color: "#111",
-              flex: 1,
-              textAlign: "right",
-            }}
-          >
-            {row.value}
-          </Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function ExpenseItem({
-  note,
-  amount,
-  createdAt,
-  onEdit,
-  onDelete,
-  deleting,
-}: {
-  note?: string | null;
-  amount: number;
-  createdAt: string;
-  onEdit: () => void;
-  onDelete: () => void;
-  deleting: boolean;
-}) {
-  const formattedDate = formatDate(createdAt);
-
-  return (
-    <View
-      style={{
-        backgroundColor: "#f9fafb",
-        borderWidth: 1,
-        borderColor: "#e5e5e5",
-        borderRadius: 14,
-        padding: 12,
-        gap: 10,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <Text
-          style={{ flex: 1, fontSize: 15, fontWeight: "700", color: "#111" }}
-        >
-          {note?.trim() ? note : "Despesa sem descrição"}
-        </Text>
-
-        <Text style={{ fontSize: 15, fontWeight: "800", color: "#b91c1c" }}>
-          {formatBRL(amount)}
-        </Text>
-      </View>
-
-      <Text style={{ fontSize: 12, color: "#666" }}>{formattedDate}</Text>
-
-      <View style={{ flexDirection: "row", gap: 10 }}>
-        <Pressable
-          onPress={onEdit}
-          style={{
-            flex: 1,
-            backgroundColor: "#111",
-            paddingVertical: 10,
-            borderRadius: 12,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "700" }}>Editar</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={onDelete}
-          disabled={deleting}
-          style={{
-            flex: 1,
-            backgroundColor: "#dc2626",
-            paddingVertical: 10,
-            borderRadius: 12,
-            alignItems: "center",
-            opacity: deleting ? 0.6 : 1,
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "700" }}>
-            {deleting ? "Excluindo..." : "Excluir"}
-          </Text>
-        </Pressable>
-      </View>
-    </View>
   );
 }
