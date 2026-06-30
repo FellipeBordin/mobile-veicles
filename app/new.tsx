@@ -1,15 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  TextInputProps,
-} from "react-native";
+import { Alert, Text, View } from "react-native";
 import { apiFetch } from "../src/lib/api";
+import { Input } from "@/src/components/common/Input";
+import { Button } from "@/src/components/common/Button";
 
 export default function NewVehicle() {
   const router = useRouter();
@@ -135,14 +130,14 @@ export default function NewVehicle() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="Nome do veículo"
           value={name}
           onChangeText={setName}
           placeholder="Ex: Gol 1.6"
         />
 
-        <Field
+        <Input
           label="Placa"
           value={plate}
           onChangeText={setPlate}
@@ -151,7 +146,7 @@ export default function NewVehicle() {
           onBlur={() => setPlate((plate) => plate.trim().toUpperCase())}
         />
 
-        <Field
+        <Input
           label="Preço de compra"
           value={purchasePrice}
           onChangeText={setPurchasePrice}
@@ -159,14 +154,14 @@ export default function NewVehicle() {
           keyboardType="numeric"
         />
 
-        <Field
+        <Input
           label="Nome do ex-proprietário"
           value={previousOwnerName}
           onChangeText={setPreviousOwnerName}
           placeholder="Digite o nome do ex-proprietário"
         />
 
-        <Field
+        <Input
           label="Telefone do ex-proprietário"
           value={previousOwnerPhone}
           onChangeText={setPreviousOwnerPhone}
@@ -174,53 +169,10 @@ export default function NewVehicle() {
           keyboardType="phone-pad"
         />
 
-        <Pressable
-          onPress={save}
-          disabled={loading}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#111",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: loading ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {loading ? "Salvando..." : "Salvar veículo"}
-          </Text>
-        </Pressable>
+        <Button title="Salvar veículo" onPress={save} disabled={loading} />
       </View>
 
-      <Pressable
-        onPress={() => router.back()}
-        style={{ paddingVertical: 14, alignItems: "center", marginTop: 14 }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
-      </Pressable>
-    </View>
-  );
-}
-type FieldProps = TextInputProps & {
-  label: string;
-};
-
-function Field({ label, ...inputProps }: FieldProps) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{label}</Text>
-      <TextInput
-        {...inputProps}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
+      <Button title="Voltar" onPress={() => router.back()} />
     </View>
   );
 }

@@ -1,16 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  TextInputProps,
-} from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
+import { Input } from "@/src/components/common/Input";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -122,14 +116,14 @@ export default function RegisterScreen() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="Nome"
           value={name}
           onChangeText={setName}
           placeholder="Digite seu nome"
         />
 
-        <Field
+        <Input
           label="E-mail"
           value={email}
           onChangeText={setEmail}
@@ -138,7 +132,7 @@ export default function RegisterScreen() {
           keyboardType="email-address"
         />
 
-        <Field
+        <Input
           label="Senha"
           value={password}
           onChangeText={setPassword}
@@ -173,30 +167,6 @@ export default function RegisterScreen() {
           </Text>
         </Pressable>
       </Link>
-    </View>
-  );
-}
-
-type FieldProps = TextInputProps & {
-  label: string;
-};
-
-function Field(props: FieldProps) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
-      <TextInput
-        {...props}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
     </View>
   );
 }

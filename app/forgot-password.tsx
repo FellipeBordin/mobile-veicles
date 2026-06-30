@@ -1,15 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  TextInputProps,
-} from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { apiFetch } from "../src/lib/api";
+import { Input } from "@/src/components/common/Input";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -125,7 +119,7 @@ export default function ForgotPasswordScreen() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="E-mail"
           value={email}
           onChangeText={setEmail}
@@ -134,7 +128,7 @@ export default function ForgotPasswordScreen() {
           keyboardType="email-address"
         />
 
-        <Field
+        <Input
           label="Nova senha"
           value={newPassword}
           onChangeText={setNewPassword}
@@ -142,7 +136,7 @@ export default function ForgotPasswordScreen() {
           secureTextEntry
         />
 
-        <Field
+        <Input
           label="Confirmar nova senha"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -176,30 +170,6 @@ export default function ForgotPasswordScreen() {
           Voltar para login
         </Text>
       </Pressable>
-    </View>
-  );
-}
-
-type FieldProps = TextInputProps & {
-  label: string;
-};
-
-function Field({ label, ...inputProps }: FieldProps) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{label}</Text>
-      <TextInput
-        {...inputProps}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
     </View>
   );
 }

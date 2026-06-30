@@ -1,16 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  TextInputProps,
-} from "react-native";
+import { Input } from "@/src/components/common/Input";
+import { Alert, Text, View } from "react-native";
 import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
+import { Button } from "@/src/components/common/Button";
+import { Card } from "@/src/components/common/Card";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,7 +21,7 @@ export default function LoginScreen() {
       Alert.alert("Erro", error);
       return;
     }
-   
+
     setLoading(true);
 
     try {
@@ -56,14 +52,14 @@ export default function LoginScreen() {
     }
   }
 
-  function validateLogin(email:string, password:string) {
-    if(!email.trim() || !password.trim()) {
+  function validateLogin(email: string, password: string) {
+    if (!email.trim() || !password.trim()) {
       return "Preencha e-mail e senha.";
-  }
-  if(!isvalidEmail(email)){
-    return "Digite um e-mail válido.";
-  }
-  return null;
+    }
+    if (!isvalidEmail(email)) {
+      return "Digite um e-mail válido.";
+    }
+    return null;
   }
 
   function goToForgotPassword() {
@@ -83,21 +79,7 @@ export default function LoginScreen() {
         paddingTop: 48,
       }}
     >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -120,7 +102,7 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="E-mail"
           value={email}
           onChangeText={setEmail}
@@ -129,7 +111,7 @@ export default function LoginScreen() {
           keyboardType="email-address"
         />
 
-        <Field
+        <Input
           label="Senha"
           value={password}
           onChangeText={setPassword}
@@ -137,67 +119,16 @@ export default function LoginScreen() {
           secureTextEntry
         />
 
-        <Pressable
-          onPress={handleLogin}
-          disabled={loading}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#111",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: loading ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {loading ? "Entrando..." : "Entrar"}
-          </Text>
-        </Pressable>
-      </View>
+        <Button onPress={handleLogin} title="Entrar" loading={loading} />
+      </Card>
 
-      <Pressable
-        onPress={goToForgotPassword}
-        style={{ paddingVertical: 10, alignItems: "center", marginTop: 14 }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>
-          Esqueci minha senha
-        </Text>
-      </Pressable>
-
-      <Pressable
-        onPress={goToRegister}
-        style={{ paddingVertical: 10, alignItems: "center" }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>Criar conta</Text>
-      </Pressable>
-    </View>
-  );
-}
-
-type FieldProps = TextInputProps & {
-  label: string;
-};
-function Field({ label, ...inputProps }: FieldProps) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{label}</Text>
-      <TextInput
-        {...inputProps}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
+      <Button onPress={goToForgotPassword} title="Esqueci minha senha" />
+      <Button onPress={goToRegister} title="Criar conta" variant="success" />
     </View>
   );
 }
 function isvalidEmail(email: string) {
-  const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
+  const re =
+    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
   return re.test(String(email).toLowerCase());
 }
-

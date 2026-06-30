@@ -2,16 +2,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
-import { apiFetch } from "../../../src/lib/api";
-
-type ExpenseDTO = {
-  id: string;
-  vehicleId: string;
-  amount: number;
-  note?: string | null;
-  createdAt: string;
-};
+import { Alert, Pressable, Text, View } from "react-native";
+import { ExpenseDTO } from "../../../src/types/expense";
+import { Input } from "@/src/components/common/Input";
+import { Card } from "@/src/components/common/Card";
+import { Button } from "@/src/components/common/Button";
+import {
+  getExpenseById,
+  updateExpenseById,
+} from "../../../src/service/expenseService";
 
 export default function EditExpenseScreen() {
   const router = useRouter();
@@ -32,7 +31,7 @@ export default function EditExpenseScreen() {
     try {
       setLoading(true);
 
-      const res = await apiFetch(`/api/expenses/${id}`);
+      const res = await getExpenseById(id);
       const data = (await res.json().catch(() => null)) as ExpenseDTO | null;
 
       if (res.status === 401) {
@@ -69,10 +68,7 @@ export default function EditExpenseScreen() {
     try {
       setSaving(true);
 
-      const res = await apiFetch(`/api/expenses/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
+      const res = await updateExpenseById(id, payload);
 
       const data = await res.json().catch(() => ({}));
 
@@ -120,21 +116,7 @@ export default function EditExpenseScreen() {
         paddingTop: 48,
       }}
     >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -159,14 +141,14 @@ export default function EditExpenseScreen() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="Descrição"
           value={note}
           onChangeText={setNote}
           placeholder="Ex: banco rasgado, pneu furado"
         />
 
-        <Field
+        <Input
           label="Valor gasto"
           value={amount}
           onChangeText={setAmount}
@@ -174,23 +156,13 @@ export default function EditExpenseScreen() {
           keyboardType="numeric"
         />
 
-        <Pressable
+        <Button
+          title="Salvar alterações despesa"
           onPress={saveExpense}
-          disabled={saving}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#111",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: saving ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {saving ? "Salvando..." : "Salvar alterações"}
-          </Text>
-        </Pressable>
-      </View>
+          loading={saving}
+          loadingTitle="Salvando..."
+        />
+      </Card>
 
       <Pressable
         onPress={() => router.back()}
@@ -198,26 +170,6 @@ export default function EditExpenseScreen() {
       >
         <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
       </Pressable>
-    </View>
-  );
-}
-
-function Field(props: any) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
-      <TextInput
-        {...props}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
     </View>
   );
 }
