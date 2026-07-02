@@ -88,6 +88,7 @@ export default function EditExpenseScreen() {
     } finally {
       setSaving(false);
     }
+  
   }
 
   if (loading) {
@@ -151,7 +152,7 @@ export default function EditExpenseScreen() {
           value={amount}
           onChangeText={setAmount}
           placeholder="Digite o valor gasto"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
         <Button

@@ -151,7 +151,7 @@ export default function NewVehicle() {
           value={purchasePrice}
           onChangeText={setPurchasePrice}
           placeholder="Digite o valor pago pelo veículo"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
         <Input

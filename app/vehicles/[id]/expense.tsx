@@ -117,7 +117,7 @@ export default function NewExpenseScreen() {
           value={amount}
           onChangeText={setAmount}
           placeholder="Digite o valor gasto"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
         <Pressable

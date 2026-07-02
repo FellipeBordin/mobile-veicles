@@ -7,6 +7,7 @@ import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
+import { isValidEmail, isStrongPassword } from "@/src/utils/validators";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -16,11 +17,20 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
-    const error = validateLogin(email, password);
-    if (error) {
-      Alert.alert("Erro", error);
-      return;
-    }
+  const emailIsValid = isValidEmail(email);
+const passwordIsValid = isStrongPassword(password);
+
+if (!emailIsValid) {
+  Alert.alert("Erro", "E-mail inválido.");
+  return;
+}
+
+if (!passwordIsValid) {
+  Alert.alert("Erro", "Senha muito curta.");
+  return;
+}
+
+console.log(emailIsValid, passwordIsValid);
 
     setLoading(true);
 
@@ -56,7 +66,7 @@ export default function LoginScreen() {
     if (!email.trim() || !password.trim()) {
       return "Preencha e-mail e senha.";
     }
-    if (!isvalidEmail(email)) {
+    if (!isValidEmail(email)) {
       return "Digite um e-mail válido.";
     }
     return null;
@@ -127,8 +137,4 @@ export default function LoginScreen() {
     </View>
   );
 }
-function isvalidEmail(email: string) {
-  const re =
-    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
-  return re.test(String(email).toLowerCase());
-}
+

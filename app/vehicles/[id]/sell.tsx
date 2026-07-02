@@ -108,7 +108,7 @@ export default function SellVehicleScreen() {
           value={soldPrice}
           onChangeText={setSoldPrice}
           placeholder="Digite o valor da venda"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
         <Field
