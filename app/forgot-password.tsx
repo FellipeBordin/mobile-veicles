@@ -1,9 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
-import { apiFetch } from "../src/lib/api";
+import { Alert, Text, View } from "react-native";
+
+import { Button } from "@/src/components/common/Button";
+import { Card } from "@/src/components/common/Card";
 import { Input } from "@/src/components/common/Input";
+import { validateResetPassword } from "@/src/utils/authValidators";
+import { apiFetch } from "../src/lib/api";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -13,35 +17,20 @@ export default function ForgotPasswordScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function isValidEmail(email: string) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
   async function handleResetPassword() {
+    const error = validateResetPassword(
+      email,
+      newPassword,
+      confirmPassword,
+    );
+
+    if (error) {
+      Alert.alert("Atenção", error);
+      return;
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
     const password = newPassword.trim();
-    const confirm = confirmPassword.trim();
-
-    if (!normalizedEmail || !password || !confirm) {
-      Alert.alert("Atenção", "Preencha e-mail, nova senha e confirmação.");
-      return;
-    }
-
-    if (!isValidEmail(normalizedEmail)) {
-      Alert.alert("Atenção", "Informe um e-mail válido.");
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert("Atenção", "A senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
-
-    if (password !== confirm) {
-      Alert.alert("Atenção", "A confirmação da senha não confere.");
-      return;
-    }
 
     setLoading(true);
 
@@ -80,21 +69,7 @@ export default function ForgotPasswordScreen() {
         paddingTop: 48,
       }}
     >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -144,32 +119,18 @@ export default function ForgotPasswordScreen() {
           secureTextEntry
         />
 
-        <Pressable
+        <Button
+          title="Salvar nova senha"
+          loadingTitle="Salvando..."
+          loading={loading}
           onPress={handleResetPassword}
-          disabled={loading}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#111",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: loading ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {loading ? "Salvando..." : "Salvar nova senha"}
-          </Text>
-        </Pressable>
-      </View>
+        />
+      </Card>
 
-      <Pressable
+      <Button
+        title="Voltar para login"
         onPress={() => router.replace("/login")}
-        style={{ paddingVertical: 14, alignItems: "center", marginTop: 14 }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>
-          Voltar para login
-        </Text>
-      </Pressable>
+      />
     </View>
   );
 }

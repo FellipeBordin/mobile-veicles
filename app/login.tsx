@@ -1,13 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Input } from "@/src/components/common/Input";
 import { Alert, Text, View } from "react-native";
-import { apiFetch } from "../src/lib/api";
-import { setToken, setUser } from "../src/lib/session";
+
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
-import { isValidEmail, isStrongPassword } from "@/src/utils/validators";
+import { Input } from "@/src/components/common/Input";
+import { apiFetch } from "../src/lib/api";
+import { setToken, setUser } from "../src/lib/session";
+import { validateLogin } from "@/src/utils/authValidators";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -17,20 +18,12 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
-  const emailIsValid = isValidEmail(email);
-const passwordIsValid = isStrongPassword(password);
+    const error = validateLogin(email, password);
 
-if (!emailIsValid) {
-  Alert.alert("Erro", "E-mail inválido.");
-  return;
-}
-
-if (!passwordIsValid) {
-  Alert.alert("Erro", "Senha muito curta.");
-  return;
-}
-
-console.log(emailIsValid, passwordIsValid);
+    if (error) {
+      Alert.alert("Erro", error);
+      return;
+    }
 
     setLoading(true);
 
@@ -60,16 +53,6 @@ console.log(emailIsValid, passwordIsValid);
     } finally {
       setLoading(false);
     }
-  }
-
-  function validateLogin(email: string, password: string) {
-    if (!email.trim() || !password.trim()) {
-      return "Preencha e-mail e senha.";
-    }
-    if (!isValidEmail(email)) {
-      return "Digite um e-mail válido.";
-    }
-    return null;
   }
 
   function goToForgotPassword() {
@@ -129,12 +112,25 @@ console.log(emailIsValid, passwordIsValid);
           secureTextEntry
         />
 
-        <Button onPress={handleLogin} title="Entrar" loading={loading} />
+        <Button
+          title="Entrar"
+          loadingTitle="Entrando..."
+          loading={loading}
+          onPress={handleLogin}
+        />
       </Card>
 
-      <Button onPress={goToForgotPassword} title="Esqueci minha senha" />
-      <Button onPress={goToRegister} title="Criar conta" variant="success" />
+      <Button
+        title="Esqueci minha senha"
+        onPress={goToForgotPassword}
+        variant="primary"
+      />
+
+      <Button
+        title="Criar conta"
+        onPress={goToRegister}
+        variant="success"
+      />
     </View>
   );
 }
-
