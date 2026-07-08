@@ -2,9 +2,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, View } from "react-native";
+
 import { apiFetch } from "../src/lib/api";
 import { Input } from "@/src/components/common/Input";
 import { Button } from "@/src/components/common/Button";
+import {isValidPlate} from "../src/utils/validators"
+import {parseCurrency} from "../src/utils/parsers"
 
 export default function NewVehicle() {
   const router = useRouter();
@@ -15,21 +18,10 @@ export default function NewVehicle() {
   const [previousOwnerPhone, setPreviousOwnerPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function normalizeCurrency(value: string) {
-    return value.trim().replace(/\./g, "").replace(",", ".");
-  }
 
-  function isValidPlate(plate: string) {
-    const oldplate = /^[A-Z]{3}[0-9]{4}$/;
-    const mercosulPlate = /^[0-9][A-Z]{3}[A-Z][0-9]{2}$/;
-
-    return oldplate.test(plate) || mercosulPlate.test(plate);
-  }
 
   async function save() {
-    const purchasePriceValue = Number.parseFloat(
-      normalizeCurrency(purchasePrice),
-    );
+    const purchasePriceValue = parseCurrency(purchasePrice);
     const payload = {
       name: name.trim(),
       plate: plate.trim().toUpperCase(),
@@ -151,7 +143,7 @@ export default function NewVehicle() {
           value={purchasePrice}
           onChangeText={setPurchasePrice}
           placeholder="Digite o valor pago pelo veículo"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
         <Input

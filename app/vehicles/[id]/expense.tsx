@@ -1,8 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text,View } from "react-native";
+
 import { apiFetch } from "../../../src/lib/api";
+import { Input } from "@/src/components/common/Input";
+import { Card } from "@/src/components/common/Card";
+import {ScreenContainer} from "@/src/components/common/ScreenContainer";
+import {Button} from "@/src/components/common/Button";
 
 export default function NewExpenseScreen() {
   const router = useRouter();
@@ -58,29 +63,8 @@ export default function NewExpenseScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        paddingTop: 48,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+    <ScreenContainer>
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -105,38 +89,33 @@ export default function NewExpenseScreen() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="Descrição"
           value={note}
           onChangeText={setNote}
           placeholder="Ex: banco rasgado, pneu furado"
         />
 
-        <Field
+        <Input
           label="Valor gasto"
           value={amount}
           onChangeText={setAmount}
           placeholder="Digite o valor gasto"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
-        <Pressable
+        <Button
+          title="Salvar despesa"
+          loadingTitle="Salvando..."
           onPress={saveExpense}
           disabled={loading}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#111",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: loading ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
+          
+          >
           <Text style={{ color: "#fff", fontWeight: "800" }}>
             {loading ? "Salvando..." : "Salvar despesa"}
           </Text>
-        </Pressable>
-      </View>
+        </Button>
+      </Card>
 
       <Pressable
         onPress={() => router.back()}
@@ -144,26 +123,8 @@ export default function NewExpenseScreen() {
       >
         <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
       </Pressable>
-    </View>
+    </ScreenContainer>
   );
 }
 
-function Field(props: any) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
-      <TextInput
-        {...props}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
-    </View>
-  );
-}
+   

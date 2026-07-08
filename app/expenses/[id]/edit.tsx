@@ -4,10 +4,12 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 import { ExpenseDTO } from "../../../src/types/expense";
+
 import { buildExpensePayload } from "../../../src/utils/expenseHelpers";
 import { Input } from "../../../src/components/common/Input";
 import { Card } from "../../../src/components/common/Card";
 import { Button } from "../../../src/components/common/Button";
+
 import {
   getExpenseById,
   updateExpenseById,
@@ -151,7 +153,7 @@ export default function EditExpenseScreen() {
           value={amount}
           onChangeText={setAmount}
           placeholder="Digite o valor gasto"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
         <Button

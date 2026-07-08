@@ -1,12 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Input } from "@/src/components/common/Input";
 import { Alert, Text, View } from "react-native";
-import { apiFetch } from "../src/lib/api";
-import { setToken, setUser } from "../src/lib/session";
+
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
+import { Input } from "@/src/components/common/Input";
+import { apiFetch } from "../src/lib/api";
+import { setToken, setUser } from "../src/lib/session";
+import { validateLogin } from "@/src/utils/authValidators";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function LoginScreen() {
 
   async function handleLogin() {
     const error = validateLogin(email, password);
+
     if (error) {
       Alert.alert("Erro", error);
       return;
@@ -50,16 +53,6 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function validateLogin(email: string, password: string) {
-    if (!email.trim() || !password.trim()) {
-      return "Preencha e-mail e senha.";
-    }
-    if (!isvalidEmail(email)) {
-      return "Digite um e-mail válido.";
-    }
-    return null;
   }
 
   function goToForgotPassword() {
@@ -119,16 +112,25 @@ export default function LoginScreen() {
           secureTextEntry
         />
 
-        <Button onPress={handleLogin} title="Entrar" loading={loading} />
+        <Button
+          title="Entrar"
+          loadingTitle="Entrando..."
+          loading={loading}
+          onPress={handleLogin}
+        />
       </Card>
 
-      <Button onPress={goToForgotPassword} title="Esqueci minha senha" />
-      <Button onPress={goToRegister} title="Criar conta" variant="success" />
+      <Button
+        title="Esqueci minha senha"
+        onPress={goToForgotPassword}
+        variant="primary"
+      />
+
+      <Button
+        title="Criar conta"
+        onPress={goToRegister}
+        variant="success"
+      />
     </View>
   );
-}
-function isvalidEmail(email: string) {
-  const re =
-    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
-  return re.test(String(email).toLowerCase());
 }

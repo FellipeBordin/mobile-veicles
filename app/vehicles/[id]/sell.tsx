@@ -1,8 +1,11 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text,View } from "react-native";
+
 import { apiFetch } from "../../../src/lib/api";
+import { Input } from "@/src/components/common/Input";
+import { Card } from "@/src/components/common/Card";
 
 export default function SellVehicleScreen() {
   const router = useRouter();
@@ -64,21 +67,7 @@ export default function SellVehicleScreen() {
         paddingTop: 48,
       }}
     >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -103,22 +92,22 @@ export default function SellVehicleScreen() {
           </View>
         </View>
 
-        <Field
+        <Input
           label="Valor de venda"
           value={soldPrice}
           onChangeText={setSoldPrice}
           placeholder="Digite o valor da venda"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
         />
 
-        <Field
+        <Input
           label="Nome do comprador"
           value={buyerName}
           onChangeText={setBuyerName}
           placeholder="Digite o nome do comprador"
         />
 
-        <Field
+        <Input
           label="Telefone do comprador"
           value={buyerPhone}
           onChangeText={setBuyerPhone}
@@ -142,7 +131,7 @@ export default function SellVehicleScreen() {
             {loading ? "Salvando..." : "Confirmar venda"}
           </Text>
         </Pressable>
-      </View>
+      </Card>
 
       <Pressable
         onPress={() => router.replace(`/vehicles/${id}`)}
@@ -154,22 +143,4 @@ export default function SellVehicleScreen() {
   );
 }
 
-function Field(props: any) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ fontWeight: "700", color: "#333" }}>{props.label}</Text>
-      <TextInput
-        {...props}
-        placeholderTextColor="#999"
-        style={{
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          borderRadius: 14,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          backgroundColor: "#f9fafb",
-        }}
-      />
-    </View>
-  );
-}
+

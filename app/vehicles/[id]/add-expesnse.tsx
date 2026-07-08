@@ -71,7 +71,7 @@ export default function AddExpenseScreen() {
           value={amount}
           onChangeText={setAmount}
           placeholder="Ex: 800"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           style={{
             borderWidth: 1,
             borderColor: "#e5e5e5",

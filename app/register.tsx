@@ -1,10 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
+
+import { Button } from "@/src/components/common/Button";
+import { Card } from "@/src/components/common/Card";
+import { Input } from "@/src/components/common/Input";
+import { validateRegister } from "@/src/utils/authValidators";
 import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
-import { Input } from "@/src/components/common/Input";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -15,24 +19,16 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleRegister() {
+    const error = validateRegister(name, email, password);
+
+    if (error) {
+      Alert.alert("Atenção", error);
+      return;
+    }
+
     const nameFormatted = name.trim();
     const emailFormatted = email.trim().toLowerCase();
     const passwordFormatted = password.trim();
-
-    if (!nameFormatted || !emailFormatted || !passwordFormatted) {
-      Alert.alert("Atenção", "Preencha nome, e-mail e senha.");
-      return;
-    }
-
-    if (!isValidEmail(emailFormatted)) {
-      Alert.alert("Erro", "E-mail inválido.");
-      return;
-    }
-
-    if (passwordFormatted.length < 6) {
-      Alert.alert("Atenção", "A senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
 
     setLoading(true);
 
@@ -65,9 +61,8 @@ export default function RegisterScreen() {
     }
   }
 
-  function isValidEmail(email: string) {
-    const emailRagex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRagex.test(email);
+  function goToLogin() {
+    router.replace("/login");
   }
 
   return (
@@ -79,21 +74,7 @@ export default function RegisterScreen() {
         paddingTop: 48,
       }}
     >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -140,33 +121,15 @@ export default function RegisterScreen() {
           secureTextEntry
         />
 
-        <Pressable
+        <Button
+          title="Criar conta"
+          loadingTitle="Criando..."
+          loading={loading}
           onPress={handleRegister}
-          disabled={loading}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#111",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: loading ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {loading ? "Criando..." : "Criar conta"}
-          </Text>
-        </Pressable>
-      </View>
+        />
+      </Card>
 
-      <Link href="/login" asChild>
-        <Pressable
-          style={{ paddingVertical: 14, alignItems: "center", marginTop: 14 }}
-        >
-          <Text style={{ color: "#111", fontWeight: "700" }}>
-            Já tenho conta
-          </Text>
-        </Pressable>
-      </Link>
+      <Button title="Já tenho conta" onPress={goToLogin} />
     </View>
   );
 }

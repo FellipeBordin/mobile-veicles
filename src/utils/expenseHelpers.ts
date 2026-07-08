@@ -7,6 +7,7 @@ export function parseExpenseAmount(value: string): number {
 export function buildExpensePayload(note: string, amount: string) {
   return {
     note: note.trim(),
+
     amount: parseExpenseAmount(amount),
   };
 }
