@@ -1,117 +1,31 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
 "use client";
-import { Vehicle } from "../../src/types/veicles";
-import { ExpenseItem } from "../../src/components/vehicle/ExpenseItem";
 
-import { deleteExpenseById } from "../../src/service/expenseService";
+import { ExpenseItem } from "../../src/components/vehicle/ExpenseItem";
 import { MiniInfoCard } from "../../src/components/vehicle/MiniInfoCard";
 import { InfoBlock } from "../../src/components/vehicle/InfoBlock";
 import { formatBRL, formatDate } from "../../src/utils/formatters";
 import { Card } from "../../src/components/common/Card";
 import { getProfitStyle } from "../../src/utils/VehicleHelpers";
+import { useVehicleDetail } from "@/src/hooks/useVehicleDetail";
 
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
-import { deleteVehicleById, getVehicleById,} from "../../src/service/vehicleService";
-import {
-  Alert,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Pressable,ScrollView,Text,View,} from "react-native";
 import { Button } from "@/src/components/common/Button";
 import { LoadingState } from "@/src/components/common/LoadingState";
 import { EmptyState } from "@/src/components/common/EmptyState";
 import { VehicleHeader } from "@/src/components/vehicle/VehicleHeader";
 import { confirmAction } from "@/src/utils/confirm";
 
+
 export default function VehicleDetailScreen() {
-  const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(false);
-  const [deletingExpenseId, setDeletingExpenseId] = useState<string | null>(
-    null,
-  );
-
-  async function load() {
-    if (!id) return;
-
-    try {
-      setLoading(true);
-
-      const res = await getVehicleById(id);
-      const data = await res.json().catch(() => null);
-
-      if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
-        router.replace("/login");
-        return;
-      }
-
-      if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
-        return;
-      }
-
-      setVehicle(data);
-    } catch {
-      Alert.alert("Erro", "Não foi possível carregar o veículo.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [id]),
-  );
-
-  function handleDeleteVehicle() {
-    if (!vehicle) return;
-
-    confirmAction({
-      title: "Excluir veículo",
-      message: `Tem certeza que deseja excluir "${vehicle.name}"?`,
-      onConfirm: deleteVehicle,
-    });
-  }
-
-  async function deleteVehicle() {
-    if (!vehicle) return;
-
-    try {
-      setDeleting(true);
-
-      const vehicleId = vehicle.id ?? id;
-      const res = await deleteVehicleById(vehicleId as string);
-      const data = await res.json().catch(() => ({}));
-
-      if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
-        router.replace("/login");
-        return;
-      }
-
-      if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
-        return;
-      }
-
-      Alert.alert("Sucesso", "Veículo excluído com sucesso.");
-      router.replace("/");
-    } catch {
-      Alert.alert("Erro", "Não foi possível excluir o veículo.");
-    } finally {
-      setDeleting(false);
-    }
-  }
+  const {
+    router,
+    vehicle,
+    loading,
+    deleting,
+    deletingExpenseId,
+    deleteVehicle,
+    deleteExpense,
+  } = useVehicleDetail();
 
   function handleDeleteExpense(expenseId: string) {
     confirmAction({
@@ -121,32 +35,14 @@ export default function VehicleDetailScreen() {
     });
   }
 
-  async function deleteExpense(expenseId: string) {
-    try {
-      setDeletingExpenseId(expenseId);
+  function handleDeleteVehicle() {
+    if (!vehicle) return;
 
-      const res = await deleteExpenseById(expenseId);
-
-      const data = await res.json().catch(() => ({}));
-
-      if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
-        router.replace("/login");
-        return;
-      }
-
-      if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
-        return;
-      }
-
-      Alert.alert("Sucesso", "Despesa excluída com sucesso.");
-      await load();
-    } catch {
-      Alert.alert("Erro", "Não foi possível excluir a despesa.");
-    } finally {
-      setDeletingExpenseId(null);
-    }
+    confirmAction({
+      title: "Excluir veículo",
+      message: `Tem certeza que deseja excluir "${vehicle.name}"?`,
+      onConfirm: deleteVehicle,
+    });
   }
 
   if (loading) {

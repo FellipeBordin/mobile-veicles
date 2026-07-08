@@ -9,32 +9,18 @@ import {
   Text,
   View,
 } from "react-native";
+import {formatBRL} from "@/src/utils/formatters"
 import { apiFetch } from "../../src/lib/api";
 import { clearSession, getToken, getUser } from "../../src/lib/session";
+import { Vehicle } from "@/src/types/veicles";
 
-type VehicleDTO = {
-  id: string;
-  name: string;
-  plate: string;
-  status: "IN_STOCK" | "SOLD";
-  purchasePrice: number;
-  totalExpenses: number;
-  totalInvested: number;
-  soldPrice: number | null;
-  profit: number | null;
-};
 
-function formatBRL(value: number) {
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
+
 
 export default function VehiclesHome() {
   const router = useRouter();
 
-  const [vehicles, setVehicles] = useState<VehicleDTO[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +56,7 @@ export default function VehiclesHome() {
       throw new Error(`GET /api/vehicles ${res.status} ${text}`);
     }
 
-    const data = (await res.json()) as VehicleDTO[];
+    const data = (await res.json()) as Vehicle[];
     setVehicles(data);
   }, [router]);
 
