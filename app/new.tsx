@@ -6,8 +6,9 @@ import { Alert, Text, View } from "react-native";
 import { apiFetch } from "../src/lib/api";
 import { Input } from "@/src/components/common/Input";
 import { Button } from "@/src/components/common/Button";
-import {isValidPlate} from "../src/utils/validators"
-import {parseCurrency} from "../src/utils/parsers"
+import { isValidPlate } from "../src/utils/validators";
+import { parseExpenseAmount } from "../src/utils/expenseHelpers";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 
 export default function NewVehicle() {
   const router = useRouter();
@@ -18,10 +19,8 @@ export default function NewVehicle() {
   const [previousOwnerPhone, setPreviousOwnerPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-
-
   async function save() {
-    const purchasePriceValue = parseCurrency(purchasePrice);
+    const purchasePriceValue = parseExpenseAmount(purchasePrice);
     const payload = {
       name: name.trim(),
       plate: plate.trim().toUpperCase(),
@@ -75,14 +74,7 @@ export default function NewVehicle() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        paddingTop: 48,
-      }}
-    >
+    <ScreenContainer>
       <View
         style={{
           backgroundColor: "#fff",
@@ -165,6 +157,6 @@ export default function NewVehicle() {
       </View>
 
       <Button title="Voltar" onPress={() => router.back()} />
-    </View>
+    </ScreenContainer>
   );
 }

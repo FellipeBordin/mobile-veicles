@@ -14,6 +14,7 @@ import {
   getExpenseById,
   updateExpenseById,
 } from "../../../src/service/expenseService";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 
 export default function EditExpenseScreen() {
   const router = useRouter();
@@ -108,14 +109,7 @@ export default function EditExpenseScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        paddingTop: 48,
-      }}
-    >
+    <ScreenContainer>
       <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
@@ -170,6 +164,6 @@ export default function EditExpenseScreen() {
       >
         <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
       </Pressable>
-    </View>
+    </ScreenContainer>
   );
 }

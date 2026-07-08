@@ -8,6 +8,7 @@ import { Card } from "@/src/components/common/Card";
 import { Input } from "@/src/components/common/Input";
 import { validateResetPassword } from "@/src/utils/authValidators";
 import { apiFetch } from "../src/lib/api";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -18,11 +19,7 @@ export default function ForgotPasswordScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleResetPassword() {
-    const error = validateResetPassword(
-      email,
-      newPassword,
-      confirmPassword,
-    );
+    const error = validateResetPassword(email, newPassword, confirmPassword);
 
     if (error) {
       Alert.alert("Atenção", error);
@@ -61,14 +58,7 @@ export default function ForgotPasswordScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        paddingTop: 48,
-      }}
-    >
+    <ScreenContainer>
       <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
@@ -131,6 +121,6 @@ export default function ForgotPasswordScreen() {
         title="Voltar para login"
         onPress={() => router.replace("/login")}
       />
-    </View>
+    </ScreenContainer>
   );
 }

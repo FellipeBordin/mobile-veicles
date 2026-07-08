@@ -8,6 +8,9 @@ import { deleteExpenseById } from "../../src/service/expenseService";
 import { MiniInfoCard } from "../../src/components/vehicle/MiniInfoCard";
 import { InfoBlock } from "../../src/components/vehicle/InfoBlock";
 import { formatBRL, formatDate } from "../../src/utils/formatters";
+import { Card } from "../../src/components/common/Card";
+import { getProfitStyle } from "../../src/utils/VehicleHelpers";
+
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
@@ -23,6 +26,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { Button } from "@/src/components/common/Button";
 
 export default function VehicleDetailScreen() {
   const router = useRouter();
@@ -227,24 +231,7 @@ export default function VehicleDetailScreen() {
   }
 
   const isSold = vehicle.status === "SOLD";
-
-  const profitColor =
-    vehicle.profit == null
-      ? "#111"
-      : vehicle.profit > 0
-        ? "#0f766e"
-        : vehicle.profit < 0
-          ? "#b91c1c"
-          : "#111";
-
-  const profitBg =
-    vehicle.profit == null
-      ? "#f3f4f6"
-      : vehicle.profit > 0
-        ? "#ccfbf1"
-        : vehicle.profit < 0
-          ? "#fee2e2"
-          : "#f3f4f6";
+  const profitStyle = getProfitStyle(vehicle.profit);
 
   return (
     <ScrollView
@@ -255,21 +242,7 @@ export default function VehicleDetailScreen() {
         backgroundColor: "#f5f5f5",
       }}
     >
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View
           style={{
             flexDirection: "row",
@@ -390,14 +363,20 @@ export default function VehicleDetailScreen() {
 
         <View
           style={{
-            backgroundColor: profitBg,
+            backgroundColor: profitStyle.bg,
             borderRadius: 16,
             padding: 14,
             gap: 6,
           }}
         >
           <Text style={{ fontSize: 13, color: "#555" }}>Lucro / Prejuízo</Text>
-          <Text style={{ fontSize: 22, fontWeight: "800", color: profitColor }}>
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: "800",
+              color: profitStyle.color,
+            }}
+          >
             {vehicle.profit != null ? formatBRL(vehicle.profit) : "-"}
           </Text>
         </View>
@@ -436,38 +415,15 @@ export default function VehicleDetailScreen() {
           )}
         </View>
 
-        <Pressable
+        <Button
+          title="Excluir veículo"
+          loadingTitle="Excluindo..."
           onPress={handleDeleteVehicle}
-          disabled={deleting}
-          style={{
-            backgroundColor: "#dc2626",
-            paddingVertical: 12,
-            borderRadius: 14,
-            alignItems: "center",
-            opacity: deleting ? 0.6 : 1,
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {deleting ? "Excluindo..." : "Excluir veículo"}
-          </Text>
-        </Pressable>
-      </View>
+          loading={deleting}
+        />
+      </Card>
 
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 12,
-        }}
-      >
+      <Card>
         <Text style={{ fontSize: 18, fontWeight: "800" }}>Despesas</Text>
 
         {vehicle.expenses.length === 0 ? (
@@ -500,7 +456,7 @@ export default function VehicleDetailScreen() {
             />
           ))
         )}
-      </View>
+      </Card>
 
       <Pressable
         onPress={() => router.back()}

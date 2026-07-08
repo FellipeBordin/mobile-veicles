@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import { API_URL } from "../../../src/config/api";
+import { Button } from "@/src/components/common/Button";
 
 export default function AddExpenseScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -17,7 +18,11 @@ export default function AddExpenseScreen() {
       amount: Number(amount),
     };
 
-    if (!payload.note || !Number.isFinite(payload.amount) || payload.amount <= 0) {
+    if (
+      !payload.note ||
+      !Number.isFinite(payload.amount) ||
+      payload.amount <= 0
+    ) {
       Alert.alert("Atenção", "Preencha a descrição e um valor maior que 0.");
       return;
     }
@@ -38,7 +43,7 @@ export default function AddExpenseScreen() {
       }
 
       Alert.alert("Sucesso", "Gasto adicionado!");
-      router.back(); // volta pro detalhe
+      router.back();
     } finally {
       setLoading(false);
     }
@@ -83,25 +88,18 @@ export default function AddExpenseScreen() {
         />
       </View>
 
-      <Pressable
+      <Button
+        title="Salvar Gasto"
+        loadingTitle="Salvando..."
         onPress={save}
-        disabled={loading}
-        style={{
-          marginTop: 8,
-          backgroundColor: "#111",
-          paddingVertical: 12,
-          borderRadius: 12,
-          opacity: loading ? 0.6 : 1,
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ color: "#fff", fontWeight: "900" }}>
-          {loading ? "Salvando..." : "Salvar gasto"}
-        </Text>
-      </Pressable>
+        loading={loading}
+      />
 
-      <Pressable onPress={() => router.back()} style={{ paddingVertical: 10, alignItems: "center" }}>
-        <Text style={{ color: "#111", fontWeight: "800" }}>Cancelar</Text>
+      <Pressable
+        onPress={() => router.back()}
+        style={{ paddingVertical: 10, alignItems: "center" }}
+      >
+        <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
       </Pressable>
     </View>
   );

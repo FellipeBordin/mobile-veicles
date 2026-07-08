@@ -1,11 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text,View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
 import { apiFetch } from "../../../src/lib/api";
 import { Input } from "@/src/components/common/Input";
 import { Card } from "@/src/components/common/Card";
+import { Button } from "@/src/components/common/Button";
 
 export default function SellVehicleScreen() {
   const router = useRouter();
@@ -115,22 +116,12 @@ export default function SellVehicleScreen() {
           keyboardType="phone-pad"
         />
 
-        <Pressable
+        <Button
           onPress={confirmSale}
-          disabled={loading}
-          style={{
-            marginTop: 4,
-            backgroundColor: "#16a34a",
-            paddingVertical: 12,
-            borderRadius: 14,
-            opacity: loading ? 0.6 : 1,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800" }}>
-            {loading ? "Salvando..." : "Confirmar venda"}
-          </Text>
-        </Pressable>
+          loadingTitle="Carregando..."
+          title="Confirmar venda"
+          loading={loading}
+        />
       </Card>
 
       <Pressable
@@ -142,5 +133,3 @@ export default function SellVehicleScreen() {
     </View>
   );
 }
-
-

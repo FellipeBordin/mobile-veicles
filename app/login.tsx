@@ -9,6 +9,7 @@ import { Input } from "@/src/components/common/Input";
 import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
 import { validateLogin } from "@/src/utils/authValidators";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -64,14 +65,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        paddingTop: 48,
-      }}
-    >
+    <ScreenContainer>
       <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
@@ -126,11 +120,7 @@ export default function LoginScreen() {
         variant="primary"
       />
 
-      <Button
-        title="Criar conta"
-        onPress={goToRegister}
-        variant="success"
-      />
-    </View>
+      <Button title="Criar conta" onPress={goToRegister} variant="success" />
+    </ScreenContainer>
   );
 }
