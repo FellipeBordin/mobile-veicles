@@ -1,13 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import {Pressable, Text, View } from "react-native";
 
 import { apiFetch } from "../../../src/lib/api";
 import { Input } from "@/src/components/common/Input";
 import { Card } from "@/src/components/common/Card";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 import { Button } from "@/src/components/common/Button";
+import {showAlert} from "@/src/utils/alert";
 
 export default function NewExpenseScreen() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function NewExpenseScreen() {
       !Number.isFinite(payload.amount) ||
       payload.amount <= 0
     ) {
-      Alert.alert("Atenção", "Preencha o valor da despesa corretamente.");
+      showAlert("Atenção", "Preencha o valor da despesa corretamente.");
       return;
     }
 
@@ -43,20 +44,20 @@ export default function NewExpenseScreen() {
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Despesa cadastrada!");
+      showAlert("Sucesso", "Despesa cadastrada!");
       router.back();
     } catch {
-      Alert.alert("Erro", "Não foi possível salvar a despesa.");
+      showAlert("Erro", "Não foi possível salvar a despesa.");
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
@@ -9,6 +9,8 @@ import { Input } from "@/src/components/common/Input";
 import { validateResetPassword } from "@/src/utils/authValidators";
 import { apiFetch } from "../src/lib/api";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import {showAlert} from "@/src/utils/alert";
+
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -22,7 +24,7 @@ export default function ForgotPasswordScreen() {
     const error = validateResetPassword(email, newPassword, confirmPassword);
 
     if (error) {
-      Alert.alert("Atenção", error);
+      showAlert("Atenção", error);
       return;
     }
 
@@ -43,15 +45,15 @@ export default function ForgotPasswordScreen() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Senha alterada com sucesso.");
+      showAlert("Sucesso", "Senha alterada com sucesso.");
       router.replace("/login");
     } catch (error) {
       console.log("Reset password error", error);
-      Alert.alert("Erro", "Não foi possível resetar a senha.");
+      showAlert("Erro", "Não foi possível resetar a senha.");
     } finally {
       setLoading(false);
     }

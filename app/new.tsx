@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import { apiFetch } from "../src/lib/api";
 import { Input } from "@/src/components/common/Input";
@@ -9,6 +9,7 @@ import { Button } from "@/src/components/common/Button";
 import { isValidPlate } from "../src/utils/validators";
 import { parseExpenseAmount } from "../src/utils/expenseHelpers";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { showAlert } from "@/src/utils/alert";
 
 export default function NewVehicle() {
   const router = useRouter();
@@ -30,17 +31,18 @@ export default function NewVehicle() {
     };
 
     if (!payload.name || !payload.plate) {
-      Alert.alert("Atenção", "Preencha o nome e a placa do veículo.");
+      showAlert("Atenção", "Preencha o nome e a placa do veículo.");
       return;
     }
 
     if (!isValidPlate(payload.plate)) {
-      Alert.alert("Atenção", "Placa inválida.");
+      showAlert("Atenção", "Placa inválida.");
+      console.log("Placa inválida:", payload.plate);
       return;
     }
 
     if (!Number.isFinite(purchasePriceValue) || purchasePriceValue <= 0) {
-      Alert.alert("Atenção", "Preencha o preço de compra corretamente.");
+      showAlert("Atenção", "Preencha o preço de compra corretamente.");
       return;
     }
 
@@ -54,20 +56,20 @@ export default function NewVehicle() {
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Veículo cadastrado!");
+      showAlert("Sucesso", "Veículo cadastrado!");
       router.replace("/");
     } catch {
-      Alert.alert("Erro", "Não foi possível conectar com a API.");
+      showAlert("Erro", "Não foi possível conectar com a API.");
     } finally {
       setLoading(false);
     }

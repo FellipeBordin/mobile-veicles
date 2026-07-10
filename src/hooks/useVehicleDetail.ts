@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
-import { Alert } from "react-native";
+import {  } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
 import { Vehicle } from "@/src/types/veicles";
 import {deleteVehicleById,getVehicleById,} from "@/src/service/vehicleService";
 import { deleteExpenseById } from "@/src/service/expenseService";
+import {showAlert} from "@/src/utils/alert";
 
 export function useVehicleDetail() {
   const router = useRouter();
@@ -27,19 +28,19 @@ export function useVehicleDetail() {
       const data = await res.json().catch(() => null);
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
       setVehicle(data);
     } catch {
-      Alert.alert("Erro", "Não foi possível carregar o veículo.");
+      showAlert("Erro", "Não foi possível carregar o veículo.");
     } finally {
       setLoading(false);
     }
@@ -62,20 +63,20 @@ export function useVehicleDetail() {
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Veículo excluído com sucesso.");
+      showAlert("Sucesso", "Veículo excluído com sucesso.");
       router.replace("/");
     } catch {
-      Alert.alert("Erro", "Não foi possível excluir o veículo.");
+      showAlert("Erro", "Não foi possível excluir o veículo.");
     } finally {
       setDeleting(false);
     }
@@ -89,20 +90,20 @@ export function useVehicleDetail() {
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Despesa excluída com sucesso.");
+      showAlert("Sucesso", "Despesa excluída com sucesso.");
       await load();
     } catch {
-      Alert.alert("Erro", "Não foi possível excluir a despesa.");
+      showAlert("Erro", "Não foi possível excluir a despesa.");
     } finally {
       setDeletingExpenseId(null);
     }

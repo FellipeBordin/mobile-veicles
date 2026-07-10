@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+
 import {formatBRL} from "@/src/utils/formatters"
 import { apiFetch } from "../../src/lib/api";
 import { clearSession, getToken, getUser } from "../../src/lib/session";

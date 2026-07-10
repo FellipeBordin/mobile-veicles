@@ -1,8 +1,10 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import {Pressable, Text, TextInput, View } from "react-native";
+
 import { API_URL } from "../../../src/config/api";
 import { Button } from "@/src/components/common/Button";
+import {showAlert} from "@/src/utils/alert";
 
 export default function AddExpenseScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,7 +25,7 @@ export default function AddExpenseScreen() {
       !Number.isFinite(payload.amount) ||
       payload.amount <= 0
     ) {
-      Alert.alert("Atenção", "Preencha a descrição e um valor maior que 0.");
+      showAlert("Atenção", "Preencha a descrição e um valor maior que 0.");
       return;
     }
 
@@ -38,11 +40,11 @@ export default function AddExpenseScreen() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Gasto adicionado!");
+      showAlert("Sucesso", "Gasto adicionado!");
       router.back();
     } finally {
       setLoading(false);

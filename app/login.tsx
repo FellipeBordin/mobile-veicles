@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
@@ -10,6 +10,7 @@ import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
 import { validateLogin } from "@/src/utils/authValidators";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { showAlert } from "@/src/utils/alert";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function LoginScreen() {
     const error = validateLogin(email, password);
 
     if (error) {
-      Alert.alert("Erro", error);
+      showAlert("Erro", error);
       return;
     }
 
@@ -40,7 +41,7 @@ export default function LoginScreen() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
@@ -50,7 +51,7 @@ export default function LoginScreen() {
       router.replace("/");
     } catch (error) {
       console.error("Login error:", error);
-      Alert.alert("Erro", "Não foi possível fazer login.");
+      showAlert("Erro", "Não foi possível fazer login.");
     } finally {
       setLoading(false);
     }

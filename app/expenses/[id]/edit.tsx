@@ -2,14 +2,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import {Pressable, Text, View } from "react-native";
 import { ExpenseDTO } from "../../../src/types/expense";
 
 import { buildExpensePayload } from "../../../src/utils/expenseHelpers";
 import { Input } from "../../../src/components/common/Input";
 import { Card } from "../../../src/components/common/Card";
 import { Button } from "../../../src/components/common/Button";
-
+import { showAlert } from "../../../src/utils/alert";
 import {
   getExpenseById,
   updateExpenseById,
@@ -39,20 +39,20 @@ export default function EditExpenseScreen() {
       const data = (await res.json().catch(() => null)) as ExpenseDTO | null;
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok || !data) {
-        Alert.alert("Erro", (data as any)?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", (data as any)?.error ?? `Falha (${res.status})`);
         return;
       }
 
       setNote(data.note ?? "");
       setAmount(String(data.amount));
     } catch {
-      Alert.alert("Erro", "Não foi possível carregar a despesa.");
+      showAlert("Erro", "Não foi possível carregar a despesa.");
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export default function EditExpenseScreen() {
     const payload = buildExpensePayload(note, amount);
 
     if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
-      Alert.alert("Atenção", "Preencha o valor da despesa corretamente.");
+      showAlert("Atenção", "Preencha o valor da despesa corretamente.");
       return;
     }
 
@@ -74,20 +74,20 @@ export default function EditExpenseScreen() {
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showAlert("Sessão expirada", "Faça login novamente.");
         router.replace("/login");
         return;
       }
 
       if (!res.ok) {
-        Alert.alert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
         return;
       }
 
-      Alert.alert("Sucesso", "Despesa atualizada com sucesso.");
+      showAlert("Sucesso", "Despesa atualizada com sucesso.");
       router.replace(`/vehicles/${data.vehicleId}`);
     } catch {
-      Alert.alert("Erro", "Não foi possível atualizar a despesa.");
+      showAlert("Erro", "Não foi possível atualizar a despesa.");
     } finally {
       setSaving(false);
     }
