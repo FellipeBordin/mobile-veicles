@@ -3,11 +3,12 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
 
-import { apiFetch } from "../src/lib/api";
+import { apiFetch } from "@/src/lib/api";
 import { Input } from "@/src/components/common/Input";
 import { Button } from "@/src/components/common/Button";
-import { isValidPlate } from "../src/utils/validators";
-import { parseExpenseAmount } from "../src/utils/expenseHelpers";
+import { Card } from "@/src/components/common/Card";
+import { isValidPlate } from "@/src/utils/validators";
+import { parseCurrency } from "@/src/utils/expenseHelpers";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 import { showAlert } from "@/src/utils/alert";
 
@@ -21,7 +22,7 @@ export default function NewVehicle() {
   const [loading, setLoading] = useState(false);
 
   async function save() {
-    const purchasePriceValue = parseExpenseAmount(purchasePrice);
+    const purchasePriceValue = parseCurrency(purchasePrice);
     const payload = {
       name: name.trim(),
       plate: plate.trim().toUpperCase(),
@@ -77,21 +78,7 @@ export default function NewVehicle() {
 
   return (
     <ScreenContainer>
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 20,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 14,
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View
             style={{
@@ -155,8 +142,13 @@ export default function NewVehicle() {
           keyboardType="phone-pad"
         />
 
-        <Button title="Salvar veículo" onPress={save} disabled={loading} />
-      </View>
+        <Button
+          title="Salvar veículo"
+          loadingTitle="Salvando..."
+          loading={loading}
+          onPress={save}
+        />
+      </Card>
 
       <Button title="Voltar" onPress={() => router.back()} />
     </ScreenContainer>

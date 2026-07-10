@@ -10,13 +10,15 @@ import {
   View,
 } from "react-native";
 
-import {formatBRL} from "@/src/utils/formatters"
-import { apiFetch } from "../../src/lib/api";
-import { clearSession, getToken, getUser } from "../../src/lib/session";
-import { Vehicle } from "@/src/types/veicles";
-
-
-
+import { formatBRL } from "@/src/utils/formatters";
+import { clearSession, getToken, getUser } from "@/src/lib/session";
+import { Vehicle } from "@/src/types/vehicles";
+import { calculateVehicleSummary } from "@/src/utils/calculateVehicle";
+import { getVehicles, claimLegacyVehicles } from "@/src/service/vehicleService";
+import { HomeHeader } from "@/src/components/vehicle/HomeHeader";
+import { Card } from "@/src/components/common/Card";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { VehicleSummary } from "@/src/components/vehicle/VehicleSummary";
 
 export default function VehiclesHome() {
   const router = useRouter();
@@ -40,11 +42,9 @@ export default function VehiclesHome() {
     const user = await getUser();
     setUserName(user?.name ?? "");
 
-    await apiFetch("/api/auth/claim-legacy", {
-      method: "POST",
-    });
+    await claimLegacyVehicles();
 
-    const res = await apiFetch("/api/vehicles");
+    const res = await getVehicles();
 
     if (res.status === 401) {
       await clearSession();
@@ -101,130 +101,17 @@ export default function VehiclesHome() {
     ]);
   }
 
-  const summary = useMemo(() => {
-    const totalVehicles = vehicles.length;
-    const inStockCount = vehicles.filter((v) => v.status === "IN_STOCK").length;
-    const soldCount = vehicles.filter((v) => v.status === "SOLD").length;
-
-    const totalInvested = vehicles.reduce((acc, v) => acc + v.totalInvested, 0);
-    const totalProfit = vehicles.reduce((acc, v) => acc + (v.profit ?? 0), 0);
-
-    return {
-      totalVehicles,
-      inStockCount,
-      soldCount,
-      totalInvested,
-      totalProfit,
-    };
-  }, [vehicles]);
+  const summary = useMemo(() => calculateVehicleSummary(vehicles), [vehicles]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        padding: 16,
-        paddingTop: 48,
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 28, fontWeight: "800" }}>Veículos</Text>
-          <Text style={{ color: "#666", marginTop: 4 }}>
-            {userName
-              ? `Olá, ${userName}`
-              : "Controle de compra, despesas e lucro"}
-          </Text>
-        </View>
+    <ScreenContainer>
+      <HomeHeader
+        userName={userName}
+        onNewVehicle={() => router.push("/new")}
+        onLogout={handleLogout}
+      />
 
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          <Pressable
-            onPress={() => router.push("/new")}
-            style={{
-              backgroundColor: "#111",
-              paddingVertical: 10,
-              paddingHorizontal: 14,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: "#fff", fontWeight: "700" }}>+ Novo</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={handleLogout}
-            style={{
-              backgroundColor: "#dc2626",
-              paddingVertical: 10,
-              paddingHorizontal: 14,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: "#fff", fontWeight: "700" }}>Sair</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <View
-        style={{
-          marginTop: 16,
-          backgroundColor: "#fff",
-          borderRadius: 18,
-          padding: 14,
-          borderWidth: 1,
-          borderColor: "#e5e5e5",
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
-          gap: 12,
-        }}
-      >
-        <Text style={{ fontSize: 16, fontWeight: "800" }}>Resumo geral</Text>
-
-        <View style={{ flexDirection: "row", gap: 12 }}>
-          <SummaryCard
-            label="Veículos"
-            value={String(summary.totalVehicles)}
-            icon="directions-car"
-            bg="#eff6ff"
-            iconColor="#2563eb"
-          />
-          <SummaryCard
-            label="Em estoque"
-            value={String(summary.inStockCount)}
-            icon="inventory"
-            bg="#f3f4f6"
-            iconColor="#374151"
-          />
-          <SummaryCard
-            label="Vendidos"
-            value={String(summary.soldCount)}
-            icon="task-alt"
-            bg="#dcfce7"
-            iconColor="#16a34a"
-          />
-        </View>
-
-        <View style={{ gap: 8 }}>
-          <SummaryRow
-            label="Total investido"
-            value={formatBRL(summary.totalInvested)}
-          />
-          <SummaryRow
-            label="Lucro total"
-            value={formatBRL(summary.totalProfit)}
-            valueColor={summary.totalProfit >= 0 ? "#0f766e" : "#b91c1c"}
-          />
-        </View>
-      </View>
+      <VehicleSummary summary={summary} />
 
       {error && (
         <View
@@ -257,112 +144,98 @@ export default function VehiclesHome() {
             const profit = item.profit ?? 0;
 
             return (
-              <Pressable
-                onPress={() => router.push(`/vehicles/${item.id}`)}
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#e5e5e5",
-                  borderRadius: 18,
-                  padding: 14,
-                  marginBottom: 12,
-                  backgroundColor: "#fff",
-                  shadowColor: "#000",
-                  shadowOpacity: 0.08,
-                  shadowRadius: 8,
-                  shadowOffset: { width: 0, height: 3 },
-                  elevation: 3,
-                  gap: 10,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <View style={{ flexDirection: "row", gap: 10, flex: 1 }}>
-                    <View
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 12,
-                        backgroundColor: isSold ? "#dcfce7" : "#eff6ff",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <MaterialIcons
-                        name="directions-car"
-                        size={24}
-                        color={isSold ? "#15803d" : "#2563eb"}
-                      />
-                    </View>
-
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 16, fontWeight: "800" }}>
-                        {item.name}
-                      </Text>
-                      <Text style={{ color: "#666", marginTop: 2 }}>
-                        Placa: {item.plate}
-                      </Text>
-                    </View>
-                  </View>
-
+              <Pressable onPress={() => router.push(`/vehicles/${item.id}`)}>
+                <Card>
                   <View
                     style={{
-                      paddingVertical: 6,
-                      paddingHorizontal: 10,
-                      borderRadius: 999,
-                      backgroundColor: isSold ? "#dcfce7" : "#f3f4f6",
-                      alignSelf: "flex-start",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      alignItems: "center",
                     }}
                   >
-                    <Text
+                    <View style={{ flexDirection: "row", gap: 10, flex: 1 }}>
+                      <View
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 12,
+                          backgroundColor: isSold ? "#dcfce7" : "#eff6ff",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <MaterialIcons
+                          name="directions-car"
+                          size={24}
+                          color={isSold ? "#15803d" : "#2563eb"}
+                        />
+                      </View>
+
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, fontWeight: "800" }}>
+                          {item.name}
+                        </Text>
+                        <Text style={{ color: "#666", marginTop: 2 }}>
+                          Placa: {item.plate}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View
                       style={{
-                        fontSize: 12,
-                        fontWeight: "800",
-                        color: isSold ? "#166534" : "#374151",
+                        paddingVertical: 6,
+                        paddingHorizontal: 10,
+                        borderRadius: 999,
+                        backgroundColor: isSold ? "#dcfce7" : "#f3f4f6",
+                        alignSelf: "flex-start",
                       }}
                     >
-                      {isSold ? "Vendido" : "Em estoque"}
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontWeight: "800",
+                          color: isSold ? "#166534" : "#374151",
+                        }}
+                      >
+                        {isSold ? "Vendido" : "Em estoque"}
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                <View style={{ gap: 6 }}>
-                  <Row label="Compra" value={formatBRL(item.purchasePrice)} />
-                  <Row label="Gastos" value={formatBRL(item.totalExpenses)} />
-                  <Row
-                    label="Total investido"
-                    value={formatBRL(item.totalInvested)}
-                    bold
-                  />
+                  <View style={{ gap: 6 }}>
+                    <Row label="Compra" value={formatBRL(item.purchasePrice)} />
+                    <Row label="Gastos" value={formatBRL(item.totalExpenses)} />
+                    <Row
+                      label="Total investido"
+                      value={formatBRL(item.totalInvested)}
+                      bold
+                    />
 
-                  {isSold && item.soldPrice != null ? (
-                    <>
-                      <Row
-                        label="Venda"
-                        value={formatBRL(item.soldPrice)}
-                        bold
-                      />
+                    {isSold && item.soldPrice != null ? (
+                      <>
+                        <Row
+                          label="Venda"
+                          value={formatBRL(item.soldPrice)}
+                          bold
+                        />
+                        <Row
+                          label="Resultado"
+                          value={formatBRL(profit)}
+                          bold
+                          valueColor={profit >= 0 ? "#0f766e" : "#b91c1c"}
+                        />
+                      </>
+                    ) : (
                       <Row
                         label="Resultado"
-                        value={formatBRL(profit)}
+                        value="Aguardando venda"
                         bold
-                        valueColor={profit >= 0 ? "#0f766e" : "#b91c1c"}
+                        valueColor="#6b7280"
                       />
-                    </>
-                  ) : (
-                    <Row
-                      label="Resultado"
-                      value="Aguardando venda"
-                      bold
-                      valueColor="#6b7280"
-                    />
-                  )}
-                </View>
+                    )}
+                  </View>
+                </Card>
               </Pressable>
             );
           }}
@@ -387,54 +260,7 @@ export default function VehiclesHome() {
           }
         />
       )}
-    </View>
-  );
-}
-
-function SummaryCard({
-  label,
-  value,
-  icon,
-  bg,
-  iconColor,
-}: {
-  label: string;
-  value: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
-  bg: string;
-  iconColor: string;
-}) {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: bg,
-        borderRadius: 14,
-        padding: 12,
-        gap: 8,
-      }}
-    >
-      <MaterialIcons name={icon} size={22} color={iconColor} />
-      <Text style={{ fontSize: 18, fontWeight: "800" }}>{value}</Text>
-      <Text style={{ fontSize: 12, color: "#555" }}>{label}</Text>
-    </View>
-  );
-}
-
-function SummaryRow({
-  label,
-  value,
-  valueColor = "#111",
-}: {
-  label: string;
-  value: string;
-  valueColor?: string;
-}) {
-  return (
-    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-      <Text style={{ color: "#444" }}>{label}</Text>
-      <Text style={{ fontWeight: "800", color: valueColor }}>{value}</Text>
-    </View>
+    </ScreenContainer>
   );
 }
 

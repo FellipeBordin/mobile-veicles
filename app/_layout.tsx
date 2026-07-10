@@ -1,7 +1,7 @@
 import { Stack, usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { getToken } from "../src/lib/session";
+import { getToken } from "@/src/lib/session";
 
 export default function RootLayout() {
   const router = useRouter();

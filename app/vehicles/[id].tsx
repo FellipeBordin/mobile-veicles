@@ -1,20 +1,19 @@
 "use client";
 
-import { ExpenseItem } from "../../src/components/vehicle/ExpenseItem";
-import { MiniInfoCard } from "../../src/components/vehicle/MiniInfoCard";
-import { InfoBlock } from "../../src/components/vehicle/InfoBlock";
+import { ExpenseItem } from "@/src/components/vehicle/ExpenseItem";
+import { MiniInfoCard } from "@/src/components/vehicle/MiniInfoCard";
+import { InfoBlock } from "@/src/components/vehicle/InfoBlock";
 import { formatBRL, formatDate } from "../../src/utils/formatters";
-import { Card } from "../../src/components/common/Card";
-import { getProfitStyle } from "../../src/utils/VehicleHelpers";
+import { Card } from "@/src/components/common/Card";
+import { getProfitStyle } from "@/src/utils/VehicleHelpers";
 import { useVehicleDetail } from "@/src/hooks/useVehicleDetail";
 
-import { Pressable,ScrollView,Text,View,} from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { Button } from "@/src/components/common/Button";
 import { LoadingState } from "@/src/components/common/LoadingState";
 import { EmptyState } from "@/src/components/common/EmptyState";
 import { VehicleHeader } from "@/src/components/vehicle/VehicleHeader";
 import { confirmAction } from "@/src/utils/confirm";
-
 
 export default function VehicleDetailScreen() {
   const {
@@ -46,20 +45,19 @@ export default function VehicleDetailScreen() {
   }
 
   if (loading) {
-    return <LoadingState/>;
+    return <LoadingState />;
   }
 
   if (!vehicle) {
     return (
-      <EmptyState 
-      message="Veículo não encontrado."
-      buttonTitle="Voltar"
-      onPress={() => router.back()}
+      <EmptyState
+        message="Veículo não encontrado."
+        buttonTitle="Voltar"
+        onPress={() => router.back()}
       />
     );
-  } 
-    
-   
+  }
+
   const isSold = vehicle.status === "SOLD";
   const profitStyle = getProfitStyle(vehicle.profit);
 
@@ -73,11 +71,11 @@ export default function VehicleDetailScreen() {
       }}
     >
       <Card>
-         <VehicleHeader 
+        <VehicleHeader
           name={vehicle.name}
           plate={vehicle.plate}
           isSold={isSold}
-          />
+        />
 
         <View style={{ flexDirection: "row", gap: 12 }}>
           <MiniInfoCard

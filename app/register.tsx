@@ -11,6 +11,7 @@ import { apiFetch } from "../src/lib/api";
 import { setToken, setUser } from "../src/lib/session";
 import {showAlert} from "../src/utils/alert";
 
+
 export default function RegisterScreen() {
   const router = useRouter();
 

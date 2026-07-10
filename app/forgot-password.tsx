@@ -7,7 +7,7 @@ import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
 import { Input } from "@/src/components/common/Input";
 import { validateResetPassword } from "@/src/utils/authValidators";
-import { apiFetch } from "../src/lib/api";
+import { apiFetch } from "@/src/lib/api";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 import {showAlert} from "@/src/utils/alert";
 
