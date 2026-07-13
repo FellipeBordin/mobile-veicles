@@ -1,4 +1,8 @@
 import { Pressable, Text } from "react-native";
+import { Spacing } from "../../styles/spacing";
+import { Radius } from "../../styles/radius";
+import { Theme } from "../../styles/theme";
+import { Colors } from "../../styles/colors";
 
 type ButtonProps = {
   title: string;
@@ -17,27 +21,34 @@ export function Button({
   onPress,
   variant = "primary",
 }: ButtonProps) {
-  const backgroundColor =
-    variant === "danger"
-      ? "#dc2626"
-      : variant === "success"
-        ? "#16a34a"
-        : "#111";
+  const backgroundColors = {
+    primary: Theme.primary,
+    success: Theme.success,
+    danger: Theme.danger,
+  };
+
+  const backgroundColor = backgroundColors[variant];
 
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
       style={{
-        marginTop: 4,
+        marginTop: Spacing.xs,
         backgroundColor,
-        paddingVertical: 12,
-        borderRadius: 14,
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.lg,
+        borderRadius: Radius.lg,
         opacity: disabled || loading ? 0.6 : 1,
         alignItems: "center",
       }}
     >
-      <Text style={{ color: "#fff", fontWeight: "800" }}>
+      <Text
+        style={{
+          color: Colors.white,
+          fontWeight: "800",
+        }}
+      >
         {loading ? (loadingTitle ?? "Carregando...") : title}
       </Text>
     </Pressable>

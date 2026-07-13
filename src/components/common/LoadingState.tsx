@@ -1,4 +1,7 @@
-import {Text, View} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+
+import { Spacing } from "@/src/styles/spacing";
+import { Theme } from "@/src/styles/theme";
 
 type LoadingStateProps = {
   message?: string;
@@ -6,16 +9,25 @@ type LoadingStateProps = {
 
 export function LoadingState({ message = "Carregando..." }: LoadingStateProps) {
   return (
-    <View
-        style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 16,
-            backgroundColor: "#f5f5f5",
-        }}
-    > 
-    <Text>{message}</Text> 
+    <View style={styles.container}>
+      <ActivityIndicator size="large" color={Theme.accent} />
+      <Text style={styles.message}>{message}</Text>
     </View>
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.md,
+    paddingVertical: Spacing.xl,
+  },
+
+  message: {
+    color: Theme.textSecondary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+});
