@@ -1,7 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
 
 import { apiFetch } from "@/src/lib/api";
 import { Input } from "@/src/components/common/Input";
@@ -11,6 +9,7 @@ import { isValidPlate } from "@/src/utils/validators";
 import { parseCurrency } from "@/src/utils/expenseHelpers";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 import { showAlert } from "@/src/utils/alert";
+import { ScreenHeader } from "@/src/components/common/ScreenHeader";
 
 export default function NewVehicle() {
   const router = useRouter();
@@ -79,29 +78,11 @@ export default function NewVehicle() {
   return (
     <ScreenContainer>
       <Card>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              backgroundColor: "#eff6ff",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <MaterialIcons name="directions-car" size={28} color="#2563eb" />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 24, fontWeight: "800" }}>
-              Novo veículo
-            </Text>
-            <Text style={{ color: "#666", marginTop: 4 }}>
-              Cadastre um veículo para controlar compra, despesas e venda
-            </Text>
-          </View>
-        </View>
+        <ScreenHeader
+          icon="directions-car"
+          title="Novo veículo"
+          subtitle="Cadastre um veículo para começar a controlar suas despesas."
+        />
 
         <Input
           label="Nome do veículo"

@@ -1,108 +1,109 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import {Pressable, Text, TextInput, View } from "react-native";
 
-import { API_URL } from "../../../src/config/api";
 import { Button } from "@/src/components/common/Button";
-import {showAlert} from "@/src/utils/alert";
+import { Card } from "@/src/components/common/Card";
+import { Input } from "@/src/components/common/Input";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { ScreenHeader } from "@/src/components/common/ScreenHeader";
+import { createExpenseByVehicleId } from "@/src/service/expenseService";
+import { showAlert } from "@/src/utils/alert";
+import { buildExpensePayload } from "@/src/utils/expenseHelpers";
+
+type ApiResponse = {
+  error?: string;
+};
 
 export default function AddExpenseScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
 
   const [note, setNote] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function save() {
-    const payload = {
-      note: note.trim(),
-      amount: Number(amount),
-    };
-
-    if (
-      !payload.note ||
-      !Number.isFinite(payload.amount) ||
-      payload.amount <= 0
-    ) {
-      showAlert("Atenção", "Preencha a descrição e um valor maior que 0.");
+  async function saveExpense() {
+    if (!id) {
+      showAlert("Erro", "Veículo não encontrado.");
       return;
     }
 
-    setLoading(true);
+    const payload = buildExpensePayload(note, amount);
+
+    if (!payload.note) {
+      showAlert("Atenção", "Informe a descrição da despesa.");
+      return;
+    }
+
+    if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
+      showAlert("Atenção", "Informe um valor maior que zero.");
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_URL}/api/vehicles/${id}/expenses`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      setLoading(true);
 
-      const data = await res.json().catch(() => ({}));
+      const res = await createExpenseByVehicleId(id, payload);
 
-      if (!res.ok) {
-        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
+      const data = (await res.json().catch(() => ({}))) as ApiResponse;
+
+      if (res.status === 401) {
+        showAlert("Sessão expirada", "Faça login novamente.");
+        router.replace("/login");
         return;
       }
 
-      showAlert("Sucesso", "Gasto adicionado!");
+      if (!res.ok) {
+        showAlert("Erro", data.error ?? `Falha (${res.status})`);
+        return;
+      }
+
+      showAlert("Sucesso", "Despesa adicionada com sucesso.");
       router.back();
+    } catch (error) {
+      console.error("Create expense error:", error);
+      showAlert("Erro", "Não foi possível adicionar a despesa.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, paddingTop: 48, gap: 12 }}>
-      <Text style={{ fontSize: 22, fontWeight: "900" }}>Adicionar gasto</Text>
+    <ScreenContainer>
+      <Card>
+        <ScreenHeader
+          icon="add-card"
+          title="Adicionar despesa"
+          subtitle="Registre os gastos relacionados a este veículo"
+        />
 
-      <View style={{ gap: 6 }}>
-        <Text style={{ fontWeight: "800" }}>Nome/descrição</Text>
-        <TextInput
+        <Input
+          label="Descrição"
           value={note}
           onChangeText={setNote}
-          placeholder="Ex: Pintura, Banco rasgado..."
-          style={{
-            borderWidth: 1,
-            borderColor: "#e5e5e5",
-            borderRadius: 12,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
-            backgroundColor: "#fff",
-          }}
+          placeholder="Ex: pintura, pneu, documentação"
         />
-      </View>
 
-      <View style={{ gap: 6 }}>
-        <Text style={{ fontWeight: "800" }}>Valor</Text>
-        <TextInput
+        <Input
+          label="Valor gasto"
           value={amount}
-          onChangeText={setAmount}
-          placeholder="Ex: 800"
-          keyboardType="decimal-pad"
-          style={{
-            borderWidth: 1,
-            borderColor: "#e5e5e5",
-            borderRadius: 12,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
-            backgroundColor: "#fff",
+          onChangeText={(text) => {
+            const currencyCharacters = text.replace(/[^0-9.,]/g, "");
+            setAmount(currencyCharacters);
           }}
+          placeholder="Ex: 800,00"
+          keyboardType="decimal-pad"
         />
-      </View>
 
-      <Button
-        title="Salvar Gasto"
-        loadingTitle="Salvando..."
-        onPress={save}
-        loading={loading}
-      />
+        <Button
+          title="Salvar despesa"
+          loadingTitle="Salvando..."
+          loading={loading}
+          onPress={saveExpense}
+        />
+      </Card>
 
-      <Pressable
-        onPress={() => router.back()}
-        style={{ paddingVertical: 10, alignItems: "center" }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
-      </Pressable>
-    </View>
+      <Button title="Cancelar" onPress={() => router.back()} />
+    </ScreenContainer>
   );
 }

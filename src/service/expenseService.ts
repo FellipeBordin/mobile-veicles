@@ -22,3 +22,18 @@ export async function updateExpenseById(
     body: JSON.stringify(payload),
   });
 }
+
+type ExpensePayload = {
+  note: string;
+  amount: number;
+};
+
+export async function createExpenseByVehicleId(
+  vehicleId: string,
+  payload: ExpensePayload,
+) {
+  return apiFetch(`/api/vehicles/${vehicleId}/expenses`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

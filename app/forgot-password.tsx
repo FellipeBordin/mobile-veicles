@@ -1,7 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
 
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
@@ -9,8 +7,8 @@ import { Input } from "@/src/components/common/Input";
 import { validateResetPassword } from "@/src/utils/authValidators";
 import { apiFetch } from "@/src/lib/api";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
-import {showAlert} from "@/src/utils/alert";
-
+import { showAlert } from "@/src/utils/alert";
+import { ScreenHeader } from "@/src/components/common/ScreenHeader";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -62,30 +60,11 @@ export default function ForgotPasswordScreen() {
   return (
     <ScreenContainer>
       <Card>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              backgroundColor: "#eff6ff",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <MaterialIcons name="lock-reset" size={28} color="#2563eb" />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 24, fontWeight: "800" }}>
-              Resetar senha
-            </Text>
-            <Text style={{ color: "#666", marginTop: 4 }}>
-              Informe seu e-mail e defina uma nova senha
-            </Text>
-          </View>
-        </View>
-
+        <ScreenHeader
+          icon="lock-reset"
+          title="Resetar senha"
+          subtitle="Informe seu e-mail e defina uma nova senha"
+        />
         <Input
           label="E-mail"
           value={email}

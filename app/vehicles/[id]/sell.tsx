@@ -1,13 +1,18 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import {Pressable, Text, View } from "react-native";
 
-import { apiFetch } from "../../../src/lib/api";
-import { Input } from "@/src/components/common/Input";
-import { Card } from "@/src/components/common/Card";
 import { Button } from "@/src/components/common/Button";
-import {showAlert} from "@/src/utils/alert";
+import { Card } from "@/src/components/common/Card";
+import { Input } from "@/src/components/common/Input";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { ScreenHeader } from "@/src/components/common/ScreenHeader";
+import { sellVehicleById } from "@/src/service/vehicleService";
+import { showAlert } from "@/src/utils/alert";
+import { parseCurrency } from "@/src/utils/expenseHelpers";
+
+type ApiResponse = {
+  error?: string;
+};
 
 export default function SellVehicleScreen() {
   const router = useRouter();
@@ -19,26 +24,27 @@ export default function SellVehicleScreen() {
   const [loading, setLoading] = useState(false);
 
   async function confirmSale() {
+    if (!id) {
+      showAlert("Erro", "Veículo não encontrado.");
+      return;
+    }
+
     const payload = {
-      soldPrice: Number(soldPrice),
+      soldPrice: parseCurrency(soldPrice),
       buyerName: buyerName.trim(),
       buyerPhone: buyerPhone.trim(),
     };
 
-    if (!id || !Number.isFinite(payload.soldPrice) || payload.soldPrice <= 0) {
+    if (!Number.isFinite(payload.soldPrice) || payload.soldPrice <= 0) {
       showAlert("Atenção", "Digite um valor de venda válido.");
       return;
     }
 
-    setLoading(true);
-
     try {
-      const res = await apiFetch(`/api/vehicles/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
+      setLoading(true);
 
-      const data = await res.json().catch(() => ({}));
+      const res = await sellVehicleById(id, payload);
+      const data = (await res.json().catch(() => ({}))) as ApiResponse;
 
       if (res.status === 401) {
         showAlert("Sessão expirada", "Faça login novamente.");
@@ -47,13 +53,14 @@ export default function SellVehicleScreen() {
       }
 
       if (!res.ok) {
-        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data.error ?? `Falha (${res.status})`);
         return;
       }
 
-      showAlert("Sucesso", "Veículo marcado como vendido!");
+      showAlert("Sucesso", "Veículo marcado como vendido.");
       router.replace(`/vehicles/${id}`);
-    } catch {
+    } catch (error) {
+      console.error("Sell vehicle error:", error);
       showAlert("Erro", "Não foi possível concluir a venda.");
     } finally {
       setLoading(false);
@@ -61,44 +68,22 @@ export default function SellVehicleScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-        paddingTop: 48,
-      }}
-    >
+    <ScreenContainer>
       <Card>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              backgroundColor: "#dcfce7",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <MaterialIcons name="sell" size={28} color="#15803d" />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 24, fontWeight: "800" }}>
-              Marcar como vendido
-            </Text>
-            <Text style={{ color: "#666", marginTop: 4 }}>
-              Informe o valor final e os dados do comprador
-            </Text>
-          </View>
-        </View>
+        <ScreenHeader
+          icon="sell"
+          title="Marcar como vendido"
+          subtitle="Informe o valor final e os dados do comprador"
+        />
 
         <Input
           label="Valor de venda"
           value={soldPrice}
-          onChangeText={setSoldPrice}
-          placeholder="Digite o valor da venda"
+          onChangeText={(text) => {
+            const currencyCharacters = text.replace(/[^0-9.,]/g, "");
+            setSoldPrice(currencyCharacters);
+          }}
+          placeholder="Ex: 35.000,00"
           keyboardType="decimal-pad"
         />
 
@@ -118,19 +103,18 @@ export default function SellVehicleScreen() {
         />
 
         <Button
-          onPress={confirmSale}
-          loadingTitle="Carregando..."
           title="Confirmar venda"
+          loadingTitle="Confirmando..."
           loading={loading}
+          onPress={confirmSale}
+          variant="success"
         />
       </Card>
 
-      <Pressable
+      <Button
+        title="Cancelar"
         onPress={() => router.replace(`/vehicles/${id}`)}
-        style={{ paddingVertical: 14, alignItems: "center", marginTop: 14 }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
-      </Pressable>
-    </View>
+      />
+    </ScreenContainer>
   );
 }

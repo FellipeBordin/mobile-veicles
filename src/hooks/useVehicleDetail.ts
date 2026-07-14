@@ -1,14 +1,17 @@
 import { useCallback, useState } from "react";
-import {  } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 
-import { Vehicle } from "@/src/types/vehicles";
+import { deleteExpenseById } from "@/src/service/expenseService";
 import {
   deleteVehicleById,
   getVehicleById,
 } from "@/src/service/vehicleService";
-import { deleteExpenseById } from "@/src/service/expenseService";
-import {showAlert} from "@/src/utils/alert";
+import { Vehicle } from "@/src/types/vehicles";
+import { showAlert } from "@/src/utils/alert";
+
+type ApiErrorResponse = {
+  error?: string;
+};
 
 export function useVehicleDetail() {
   const router = useRouter();
@@ -21,14 +24,22 @@ export function useVehicleDetail() {
     null,
   );
 
-  async function load() {
-    if (!id) return;
+  const load = useCallback(async () => {
+    if (!id) {
+      setVehicle(null);
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
 
       const res = await getVehicleById(id);
-      const data = await res.json().catch(() => null);
+
+      const data = (await res.json().catch(() => null)) as
+        | Vehicle
+        | ApiErrorResponse
+        | null;
 
       if (res.status === 401) {
         showAlert("Sessão expirada", "Faça login novamente.");
@@ -36,23 +47,30 @@ export function useVehicleDetail() {
         return;
       }
 
-      if (!res.ok) {
-        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
+      if (!res.ok || !data || !("id" in data)) {
+        const message =
+          data && "error" in data ? data.error : `Falha (${res.status})`;
+
+        showAlert("Erro", message ?? "Não foi possível carregar o veículo.");
+
+        setVehicle(null);
         return;
       }
 
       setVehicle(data);
-    } catch {
+    } catch (error) {
+      console.error("Load vehicle error:", error);
       showAlert("Erro", "Não foi possível carregar o veículo.");
+      setVehicle(null);
     } finally {
       setLoading(false);
     }
-  }
+  }, [id, router]);
 
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [id]),
+    }, [load]),
   );
 
   async function deleteVehicle() {
@@ -61,9 +79,8 @@ export function useVehicleDetail() {
     try {
       setDeleting(true);
 
-      const vehicleId = vehicle.id ?? id;
-      const res = await deleteVehicleById(vehicleId as string);
-      const data = await res.json().catch(() => ({}));
+      const res = await deleteVehicleById(vehicle.id);
+      const data = (await res.json().catch(() => ({}))) as ApiErrorResponse;
 
       if (res.status === 401) {
         showAlert("Sessão expirada", "Faça login novamente.");
@@ -72,13 +89,14 @@ export function useVehicleDetail() {
       }
 
       if (!res.ok) {
-        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data.error ?? `Falha (${res.status})`);
         return;
       }
 
       showAlert("Sucesso", "Veículo excluído com sucesso.");
       router.replace("/");
-    } catch {
+    } catch (error) {
+      console.error("Delete vehicle error:", error);
       showAlert("Erro", "Não foi possível excluir o veículo.");
     } finally {
       setDeleting(false);
@@ -90,7 +108,7 @@ export function useVehicleDetail() {
       setDeletingExpenseId(expenseId);
 
       const res = await deleteExpenseById(expenseId);
-      const data = await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as ApiErrorResponse;
 
       if (res.status === 401) {
         showAlert("Sessão expirada", "Faça login novamente.");
@@ -99,13 +117,14 @@ export function useVehicleDetail() {
       }
 
       if (!res.ok) {
-        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data.error ?? `Falha (${res.status})`);
         return;
       }
 
       showAlert("Sucesso", "Despesa excluída com sucesso.");
       await load();
-    } catch {
+    } catch (error) {
+      console.error("Delete expense error:", error);
       showAlert("Erro", "Não foi possível excluir a despesa.");
     } finally {
       setDeletingExpenseId(null);
@@ -113,13 +132,11 @@ export function useVehicleDetail() {
   }
 
   return {
-    id,
     router,
     vehicle,
     loading,
     deleting,
     deletingExpenseId,
-    load,
     deleteVehicle,
     deleteExpense,
   };

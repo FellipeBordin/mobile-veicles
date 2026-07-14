@@ -1,5 +1,10 @@
-import { Pressable, Text, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
 import { formatBRL, formatDate } from "@/src/utils/formatters";
+import { Radius } from "@/src/styles/radius";
+import { Spacing } from "@/src/styles/spacing";
+import { Theme } from "@/src/styles/theme";
 
 type ExpenseItemProps = {
   note?: string | null;
@@ -18,67 +23,64 @@ export function ExpenseItem({
   onDelete,
   deleting,
 }: ExpenseItemProps) {
-  return (
-    <View
-      style={{
-        backgroundColor: "#f9fafb",
-        borderWidth: 1,
-        borderColor: "#e5e5e5",
-        borderRadius: 14,
-        padding: 12,
-        gap: 10,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <Text
-          style={{ flex: 1, fontSize: 15, fontWeight: "700", color: "#111" }}
-        >
-          {note?.trim() ? note : "Despesa sem descrição"}
-        </Text>
+  const description = note?.trim() || "Despesa sem descrição";
 
-        <Text style={{ fontSize: 15, fontWeight: "800", color: "#b91c1c" }}>
-          {formatBRL(amount)}
-        </Text>
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.info}>
+          <View style={styles.iconContainer}>
+            <MaterialIcons
+              name="receipt-long"
+              size={20}
+              color={Theme.dangerDark}
+            />
+          </View>
+
+          <View style={styles.textContainer}>
+            <Text style={styles.description}>{description}</Text>
+            <Text style={styles.date}>{formatDate(createdAt)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.amountContainer}>
+          <Text style={styles.amountLabel}>Valor</Text>
+          <Text style={styles.amount}>{formatBRL(amount)}</Text>
+        </View>
       </View>
 
-      <Text style={{ fontSize: 12, color: "#666" }}>
-        {formatDate(createdAt)}
-      </Text>
+      <View style={styles.divider} />
 
-      <View style={{ flexDirection: "row", gap: 10 }}>
+      <View style={styles.actions}>
         <Pressable
           onPress={onEdit}
-          style={{
-            flex: 1,
-            backgroundColor: "#111",
-            paddingVertical: 10,
-            borderRadius: 12,
-            alignItems: "center",
-          }}
+          style={({ pressed }) => [
+            styles.actionButton,
+            styles.editButton,
+            pressed && styles.pressed,
+          ]}
         >
-          <Text style={{ color: "#fff", fontWeight: "700" }}>Editar</Text>
+          <MaterialIcons name="edit" size={18} color={Theme.textPrimary} />
+
+          <Text style={styles.editButtonText}>Editar</Text>
         </Pressable>
 
         <Pressable
           onPress={onDelete}
           disabled={deleting}
-          style={{
-            flex: 1,
-            backgroundColor: "#dc2626",
-            paddingVertical: 10,
-            borderRadius: 12,
-            alignItems: "center",
-            opacity: deleting ? 0.6 : 1,
-          }}
+          style={({ pressed }) => [
+            styles.actionButton,
+            styles.deleteButton,
+            (pressed || deleting) && styles.disabled,
+          ]}
         >
-          <Text style={{ color: "#fff", fontWeight: "700" }}>
+          <MaterialIcons
+            name="delete-outline"
+            size={18}
+            color={Theme.dangerDark}
+          />
+
+          <Text style={styles.deleteButtonText}>
             {deleting ? "Excluindo..." : "Excluir"}
           </Text>
         </Pressable>
@@ -86,3 +88,122 @@ export function ExpenseItem({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Theme.surfaceMuted,
+    borderWidth: 1,
+    borderColor: Theme.border,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    gap: Spacing.md,
+  },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: Spacing.md,
+  },
+
+  info: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    flex: 1,
+  },
+
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.md,
+    backgroundColor: Theme.dangerLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  textContainer: {
+    flex: 1,
+  },
+
+  description: {
+    color: Theme.textPrimary,
+    fontSize: 15,
+    fontWeight: "800",
+  },
+
+  date: {
+    color: Theme.textSecondary,
+    fontSize: 12,
+    marginTop: Spacing.xs,
+  },
+
+  amountContainer: {
+    alignItems: "flex-end",
+  },
+
+  amountLabel: {
+    color: Theme.textMuted,
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+
+  amount: {
+    color: Theme.dangerDark,
+    fontSize: 16,
+    fontWeight: "900",
+    marginTop: Spacing.xs,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: Theme.border,
+  },
+
+  actions: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+  },
+
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.md,
+  },
+
+  editButton: {
+    backgroundColor: Theme.surface,
+    borderWidth: 1,
+    borderColor: Theme.border,
+  },
+
+  editButtonText: {
+    color: Theme.textPrimary,
+    fontWeight: "800",
+  },
+
+  deleteButton: {
+    backgroundColor: Theme.dangerLight,
+    borderWidth: 1,
+    borderColor: Theme.dangerBorder,
+  },
+
+  deleteButtonText: {
+    color: Theme.dangerDark,
+    fontWeight: "800",
+  },
+
+  pressed: {
+    opacity: 0.72,
+  },
+
+  disabled: {
+    opacity: 0.55,
+  },
+});

@@ -1,4 +1,8 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
+import { Radius } from "@/src/styles/radius";
+import { Spacing } from "@/src/styles/spacing";
+import { Theme } from "@/src/styles/theme";
 
 type InfoRow = {
   label: string;
@@ -12,41 +16,65 @@ type InfoBlockProps = {
 
 export function InfoBlock({ title, rows }: InfoBlockProps) {
   return (
-    <View
-      style={{
-        backgroundColor: "#f9fafb",
-        borderRadius: 16,
-        padding: 14,
-        gap: 8,
-      }}
-    >
-      <Text style={{ fontSize: 16, fontWeight: "800", color: "#111" }}>
-        {title}
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>{title}</Text>
 
-      {rows.map((row) => (
-        <View
-          key={row.label}
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            gap: 12,
-          }}
-        >
-          <Text style={{ color: "#444", flex: 1 }}>{row.label}</Text>
+      {rows.map((row, index) => (
+        <View key={row.label}>
+          <View style={styles.row}>
+            <Text style={styles.label}>{row.label}</Text>
 
-          <Text
-            style={{
-              fontWeight: "700",
-              color: "#111",
-              flex: 1,
-              textAlign: "right",
-            }}
-          >
-            {row.value}
-          </Text>
+            <Text style={styles.value}>{row.value}</Text>
+          </View>
+
+          {index < rows.length - 1 && <View style={styles.divider} />}
         </View>
       ))}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Theme.surfaceMuted,
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    borderColor: Theme.border,
+    padding: Spacing.md,
+    gap: Spacing.sm,
+  },
+
+  title: {
+    color: Theme.textPrimary,
+    fontSize: 17,
+    fontWeight: "800",
+    marginBottom: Spacing.xs,
+  },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+
+  label: {
+    flex: 1,
+    color: Theme.textSecondary,
+    fontSize: 14,
+  },
+
+  value: {
+    flex: 1,
+    color: Theme.textPrimary,
+    fontSize: 14,
+    fontWeight: "700",
+    textAlign: "right",
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: Theme.border,
+  },
+});

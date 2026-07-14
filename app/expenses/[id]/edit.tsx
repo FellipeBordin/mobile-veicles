@@ -1,20 +1,23 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import {Pressable, Text, View } from "react-native";
-import { ExpenseDTO } from "../../../src/types/expense";
+import { useEffect, useState, useCallback } from "react";
 
-import { buildExpensePayload } from "../../../src/utils/expenseHelpers";
-import { Input } from "../../../src/components/common/Input";
-import { Card } from "../../../src/components/common/Card";
-import { Button } from "../../../src/components/common/Button";
-import { showAlert } from "../../../src/utils/alert";
+import { Button } from "@/src/components/common/Button";
+import { Card } from "@/src/components/common/Card";
+import { Input } from "@/src/components/common/Input";
+import { LoadingState } from "@/src/components/common/LoadingState";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { ScreenHeader } from "@/src/components/common/ScreenHeader";
+import { ExpenseDTO } from "@/src/types/expense";
+import { showAlert } from "@/src/utils/alert";
+import { buildExpensePayload } from "@/src/utils/expenseHelpers";
 import {
   getExpenseById,
   updateExpenseById,
-} from "../../../src/service/expenseService";
-import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+} from "@/src/service/expenseService";
+
+type ApiErrorResponse = {
+  error?: string;
+};
 
 export default function EditExpenseScreen() {
   const router = useRouter();
@@ -25,18 +28,21 @@ export default function EditExpenseScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadExpense();
-  }, [id]);
-
-  async function loadExpense() {
-    if (!id) return;
+  const loadExpense = useCallback(async () => {
+    if (!id) {
+      showAlert("Erro", "Despesa não encontrada.");
+      router.back();
+      return;
+    }
 
     try {
       setLoading(true);
 
       const res = await getExpenseById(id);
-      const data = (await res.json().catch(() => null)) as ExpenseDTO | null;
+      const data = (await res.json().catch(() => null)) as
+        | ExpenseDTO
+        | ApiErrorResponse
+        | null;
 
       if (res.status === 401) {
         showAlert("Sessão expirada", "Faça login novamente.");
@@ -44,21 +50,34 @@ export default function EditExpenseScreen() {
         return;
       }
 
-      if (!res.ok || !data) {
-        showAlert("Erro", (data as any)?.error ?? `Falha (${res.status})`);
+      if (!res.ok || !data || !("id" in data)) {
+        const message =
+          data && "error" in data ? data.error : `Falha (${res.status})`;
+
+        showAlert("Erro", message ?? "Não foi possível carregar a despesa.");
         return;
       }
 
       setNote(data.note ?? "");
       setAmount(String(data.amount));
-    } catch {
+    } catch (error) {
+      console.error("Load expense error:", error);
       showAlert("Erro", "Não foi possível carregar a despesa.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [id, router]);
+
+  useEffect(() => {
+    loadExpense();
+  }, [loadExpense]);
 
   async function saveExpense() {
+    if (!id) {
+      showAlert("Erro", "Despesa não encontrada.");
+      return;
+    }
+
     const payload = buildExpensePayload(note, amount);
 
     if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
@@ -70,8 +89,9 @@ export default function EditExpenseScreen() {
       setSaving(true);
 
       const res = await updateExpenseById(id, payload);
-
-      const data = await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as ApiErrorResponse & {
+        vehicleId?: string;
+      };
 
       if (res.status === 401) {
         showAlert("Sessão expirada", "Faça login novamente.");
@@ -80,13 +100,19 @@ export default function EditExpenseScreen() {
       }
 
       if (!res.ok) {
-        showAlert("Erro", data?.error ?? `Falha (${res.status})`);
+        showAlert("Erro", data.error ?? `Falha (${res.status})`);
+        return;
+      }
+
+      if (!data.vehicleId) {
+        showAlert("Erro", "A API não retornou o veículo da despesa.");
         return;
       }
 
       showAlert("Sucesso", "Despesa atualizada com sucesso.");
       router.replace(`/vehicles/${data.vehicleId}`);
-    } catch {
+    } catch (error) {
+      console.error("Update expense error:", error);
       showAlert("Erro", "Não foi possível atualizar a despesa.");
     } finally {
       setSaving(false);
@@ -94,46 +120,17 @@ export default function EditExpenseScreen() {
   }
 
   if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#f5f5f5",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Text>Carregando...</Text>
-      </View>
-    );
+    return <LoadingState message="Carregando despesa..." />;
   }
 
   return (
     <ScreenContainer>
       <Card>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              backgroundColor: "#eff6ff",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <MaterialIcons name="edit-note" size={28} color="#2563eb" />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 24, fontWeight: "800" }}>
-              Editar despesa
-            </Text>
-            <Text style={{ color: "#666", marginTop: 4 }}>
-              Corrija descrição ou valor da despesa
-            </Text>
-          </View>
-        </View>
+        <ScreenHeader
+          icon="edit-note"
+          title="Editar despesa"
+          subtitle="Corrija a descrição ou o valor da despesa"
+        />
 
         <Input
           label="Descrição"
@@ -151,19 +148,14 @@ export default function EditExpenseScreen() {
         />
 
         <Button
-          title="Salvar alterações despesa"
-          onPress={saveExpense}
-          loading={saving}
+          title="Salvar alterações"
           loadingTitle="Salvando..."
+          loading={saving}
+          onPress={saveExpense}
         />
       </Card>
 
-      <Pressable
-        onPress={() => router.back()}
-        style={{ paddingVertical: 14, alignItems: "center", marginTop: 14 }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
-      </Pressable>
+      <Button title="Cancelar" onPress={() => router.back()} />
     </ScreenContainer>
   );
 }

@@ -1,7 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
 
 import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
@@ -11,6 +9,7 @@ import { setToken, setUser } from "@/src/lib/session";
 import { validateLogin } from "@/src/utils/authValidators";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 import { showAlert } from "@/src/utils/alert";
+import { ScreenHeader } from "@/src/components/common/ScreenHeader";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -68,27 +67,11 @@ export default function LoginScreen() {
   return (
     <ScreenContainer>
       <Card>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              backgroundColor: "#eff6ff",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <MaterialIcons name="lock" size={28} color="#2563eb" />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 24, fontWeight: "800" }}>Entrar</Text>
-            <Text style={{ color: "#666", marginTop: 4 }}>
-              Acesse sua conta para ver seus veículos
-            </Text>
-          </View>
-        </View>
+        <ScreenHeader
+          icon="lock"
+          title="Entrar"
+          subtitle="Acesse sua conta para ver seus veículos"
+        />
 
         <Input
           label="E-mail"

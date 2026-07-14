@@ -1,18 +1,25 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, FlatList, RefreshControl, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from "react-native";
 
-import { clearSession, getToken, getUser } from "@/src/lib/session";
-import { Vehicle } from "@/src/types/vehicles";
-import { calculateVehicleSummary } from "@/src/utils/calculateVehicle";
-import { getVehicles, claimLegacyVehicles } from "@/src/service/vehicleService";
-import { HomeHeader } from "@/src/components/vehicle/HomeHeader";
-import { ScreenContainer } from "@/src/components/common/ScreenContainer";
-import { VehicleSummary } from "@/src/components/vehicle/VehicleSummary";
-import { VehicleCard } from "@/src/components/vehicle/vehicleCard";
-import { LoadingState } from "@/src/components/common/LoadingState";
 import { EmptyState } from "@/src/components/common/EmptyState";
 import { ErrorState } from "@/src/components/common/ErrorState";
+import { LoadingState } from "@/src/components/common/LoadingState";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { HomeHeader } from "@/src/components/vehicle/HomeHeader";
+import { VehicleCard } from "@/src/components/vehicle/vehicleCard";
+import { VehicleSummary } from "@/src/components/vehicle/VehicleSummary";
+import { clearSession, getToken, getUser } from "@/src/lib/session";
+import { claimLegacyVehicles, getVehicles } from "@/src/service/vehicleService";
+import { Spacing } from "@/src/styles/spacing";
+import { Vehicle } from "@/src/types/vehicles";
+import { calculateVehicleSummary } from "@/src/utils/calculateVehicle";
 
 export default function VehiclesHome() {
   const router = useRouter();
@@ -29,7 +36,7 @@ export default function VehiclesHome() {
     const token = await getToken();
 
     if (!token) {
-      router.replace("/");
+      router.replace("/login");
       return;
     }
 
@@ -42,7 +49,7 @@ export default function VehiclesHome() {
 
     if (res.status === 401) {
       await clearSession();
-      router.replace("/");
+      router.replace("/login");
       return;
     }
 
@@ -60,21 +67,27 @@ export default function VehiclesHome() {
       setLoading(true);
 
       load()
-        .catch((e) => setError(String(e?.message ?? e)))
-        .finally(() => setLoading(false));
+        .catch((error: unknown) => {
+          setError(getErrorMessage(error));
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }, [load]),
   );
 
   async function onRefresh() {
     setRefreshing(true);
+
     try {
       await load();
-    } catch (e: any) {
-      setError(String(e?.message ?? e));
+    } catch (error: unknown) {
+      setError(getErrorMessage(error));
     } finally {
       setRefreshing(false);
     }
   }
+
   async function logoutNow() {
     await clearSession();
     router.replace("/login");
@@ -82,7 +95,10 @@ export default function VehiclesHome() {
 
   function handleLogout() {
     Alert.alert("Sair da conta", "Deseja realmente sair?", [
-      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
       {
         text: "Sair",
         style: "destructive",
@@ -113,10 +129,10 @@ export default function VehiclesHome() {
         <LoadingState message="Carregando veículos..." />
       ) : (
         <FlatList
-          style={{ marginTop: 16 }}
+          style={styles.list}
           data={vehicles}
           keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ItemSeparatorComponent={ListSeparator}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -139,3 +155,25 @@ export default function VehiclesHome() {
     </ScreenContainer>
   );
 }
+
+function ListSeparator() {
+  return <View style={styles.separator} />;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
+const styles = StyleSheet.create({
+  list: {
+    marginTop: Spacing.lg,
+  },
+
+  separator: {
+    height: Spacing.md,
+  },
+});
