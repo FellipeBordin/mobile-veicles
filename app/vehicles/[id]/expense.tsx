@@ -1,13 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { apiFetch } from "../../../src/lib/api";
-import { Input } from "@/src/components/common/Input";
-import { Card } from "@/src/components/common/Card";
-import { ScreenContainer } from "@/src/components/common/ScreenContainer";
 import { Button } from "@/src/components/common/Button";
+import { Card } from "@/src/components/common/Card";
+import { Input } from "@/src/components/common/Input";
+import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { apiFetch } from "@/src/lib/api";
+import { Radius } from "@/src/styles/radius";
+import { Spacing } from "@/src/styles/spacing";
+import { Theme } from "@/src/styles/theme";
+import { Typography } from "@/src/styles/typography";
 import { showAlert } from "@/src/utils/alert";
 
 export default function NewExpenseScreen() {
@@ -19,10 +23,12 @@ export default function NewExpenseScreen() {
   const [loading, setLoading] = useState(false);
 
   async function saveExpense() {
+    const parsedAmount = Number(amount.replace(",", "."));
+
     const payload = {
       vehicleId: id,
       note: note.trim(),
-      amount: Number(amount),
+      amount: parsedAmount,
     };
 
     if (
@@ -35,6 +41,7 @@ export default function NewExpenseScreen() {
     }
 
     setLoading(true);
+
     try {
       const res = await apiFetch("/api/expenses", {
         method: "POST",
@@ -63,28 +70,27 @@ export default function NewExpenseScreen() {
     }
   }
 
+  function handleCancel() {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/");
+  }
+
   return (
     <ScreenContainer>
       <Card>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-          <View
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              backgroundColor: "#eff6ff",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <MaterialIcons name="receipt-long" size={28} color="#2563eb" />
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <MaterialIcons name="receipt-long" size={28} color={Theme.accent} />
           </View>
 
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 24, fontWeight: "800" }}>
-              Nova despesa
-            </Text>
-            <Text style={{ color: "#666", marginTop: 4 }}>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Nova despesa</Text>
+
+            <Text style={styles.subtitle}>
               Informe o que foi gasto e o valor
             </Text>
           </View>
@@ -95,6 +101,7 @@ export default function NewExpenseScreen() {
           value={note}
           onChangeText={setNote}
           placeholder="Ex: banco rasgado, pneu furado"
+          icon="description"
         />
 
         <Input
@@ -103,23 +110,64 @@ export default function NewExpenseScreen() {
           onChangeText={setAmount}
           placeholder="Digite o valor gasto"
           keyboardType="decimal-pad"
+          icon="payments"
         />
 
-        <Button
-          title="Salvar despesa"
-          loadingTitle="Salvando..."
-          icon="save"
-          onPress={saveExpense}
-          loading={loading}
-        />
+        <View style={styles.actions}>
+          <Button
+            title="Salvar despesa"
+            loadingTitle="Salvando..."
+            icon="save"
+            onPress={saveExpense}
+            loading={loading}
+          />
+
+          <Button
+            title="Cancelar"
+            variant="ghost"
+            onPress={handleCancel}
+            disabled={loading}
+          />
+        </View>
       </Card>
-
-      <Pressable
-        onPress={() => router.back()}
-        style={{ paddingVertical: 14, alignItems: "center", marginTop: 14 }}
-      >
-        <Text style={{ color: "#111", fontWeight: "700" }}>Cancelar</Text>
-      </Pressable>
     </ScreenContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+
+  iconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: Radius.lg,
+    backgroundColor: Theme.accentLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerContent: {
+    flex: 1,
+  },
+
+  title: {
+    ...Typography.screenTitle,
+    color: Theme.textPrimary,
+    fontSize: 24, // sobrescreve o 30 para ficar igual às outras telas
+  },
+
+  subtitle: {
+    ...Typography.body,
+    color: Theme.textSecondary,
+    marginTop: Spacing.xs,
+  },
+
+  actions: {
+    gap: Spacing.sm,
+  },
+});
