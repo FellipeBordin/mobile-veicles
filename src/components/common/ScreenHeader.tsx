@@ -1,9 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 import { Typography } from "@/src/styles/typography";
 
 type ScreenHeaderProps = {
@@ -12,16 +12,52 @@ type ScreenHeaderProps = {
   subtitle: string;
 };
 
-export function ScreenHeader({ icon, title, subtitle }: ScreenHeaderProps) {
+export function ScreenHeader({
+  icon,
+  title,
+  subtitle,
+}: ScreenHeaderProps) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.header}>
-      <View style={styles.iconContainer}>
-        <MaterialIcons name={icon} size={28} color={Theme.accent} />
+      <View
+        style={[
+          styles.iconContainer,
+          {
+            backgroundColor: theme.accentLight,
+          },
+        ]}
+      >
+        <MaterialIcons
+          name={icon}
+          size={28}
+          color={theme.accent}
+        />
       </View>
 
       <View style={styles.headerText}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: theme.textPrimary,
+            },
+          ]}
+        >
+          {title}
+        </Text>
+
+        <Text
+          style={[
+            styles.subtitle,
+            {
+              color: theme.textSecondary,
+            },
+          ]}
+        >
+          {subtitle}
+        </Text>
       </View>
     </View>
   );
@@ -39,7 +75,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: Radius.lg,
-    backgroundColor: Theme.accentLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -49,12 +84,10 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: Theme.textPrimary,
     ...Typography.cardTitle,
   },
 
   subtitle: {
-    color: Theme.textSecondary,
     ...Typography.body,
     marginTop: Spacing.xs,
   },

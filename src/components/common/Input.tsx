@@ -8,9 +8,9 @@ import {
   View,
 } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 import { Typography } from "@/src/styles/typography";
 
 type InputProps = TextInputProps & {
@@ -28,29 +28,61 @@ export function Input({
   onBlur,
   ...inputProps
 }: InputProps) {
+  const { theme } = useAppTheme();
+
   const [focused, setFocused] = useState(false);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      <Text
+        style={[
+          styles.label,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+      >
+        {label}
+      </Text>
 
       <View
         style={[
           styles.inputContainer,
-          focused && styles.inputContainerFocused,
-          error && styles.inputContainerError,
+
+          {
+            backgroundColor: theme.surfaceMuted,
+            borderColor: theme.border,
+          },
+
+          focused && {
+            backgroundColor: theme.surface,
+            borderColor: theme.accent,
+          },
+
+          error && {
+            backgroundColor: theme.dangerLight,
+            borderColor: theme.danger,
+          },
         ]}
       >
-        {icon ? (
+        {icon && (
           <MaterialIcons
             name={icon}
             size={20}
-            color={focused ? Theme.accent : Theme.textMuted}
+            color={focused ? theme.accent : theme.textMuted}
           />
-        ) : null}
+        )}
 
         <TextInput
           {...inputProps}
+          style={[
+            styles.input,
+            {
+              color: theme.textPrimary,
+            },
+            style,
+          ]}
+          placeholderTextColor={theme.textMuted}
           onFocus={(event) => {
             setFocused(true);
             onFocus?.(event);
@@ -59,12 +91,21 @@ export function Input({
             setFocused(false);
             onBlur?.(event);
           }}
-          placeholderTextColor={Theme.textMuted}
-          style={[styles.input, style]}
         />
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error && (
+        <Text
+          style={[
+            styles.errorText,
+            {
+              color: theme.dangerDark,
+            },
+          ]}
+        >
+          {error}
+        </Text>
+      )}
     </View>
   );
 }
@@ -75,7 +116,6 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: Theme.textPrimary,
     ...Typography.bodyStrong,
   },
 
@@ -84,33 +124,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    backgroundColor: Theme.surfaceMuted,
     borderWidth: 1,
-    borderColor: Theme.border,
     borderRadius: Radius.lg,
     paddingHorizontal: Spacing.md,
   },
 
-  inputContainerFocused: {
-    backgroundColor: Theme.surface,
-    borderColor: Theme.accent,
-  },
-
-  inputContainerError: {
-    backgroundColor: Theme.dangerLight,
-    borderColor: Theme.danger,
-  },
-
   input: {
     flex: 1,
-    color: Theme.textPrimary,
     fontSize: 16,
     paddingVertical: Spacing.md,
   },
 
   errorText: {
-    color: Theme.dangerDark,
-    fontSize: 12,
-    fontWeight: "600",
+    ...Typography.caption,
   },
 });

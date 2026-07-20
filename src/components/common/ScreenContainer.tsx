@@ -6,9 +6,10 @@ import {
   ViewStyle,
   StyleProp,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 
 type ScreenContainerProps = {
   children: ReactNode;
@@ -21,26 +22,65 @@ export function ScreenContainer({
   scroll = false,
   contentContainerStyle,
 }: ScreenContainerProps) {
+  const { theme } = useAppTheme();
+
   if (scroll) {
     return (
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            backgroundColor: theme.background,
+          },
+        ]}
       >
-        {children}
-      </ScrollView>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              backgroundColor: theme.background,
+            },
+            contentContainerStyle,
+          ]}
+        >
+          {children}
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={[styles.container, contentContainerStyle]}>{children}</View>
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: theme.background,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme.background,
+          },
+          contentContainerStyle,
+        ]}
+      >
+        {children}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+
   container: {
     flex: 1,
-    backgroundColor: Theme.background,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xxl,
     gap: Spacing.md,
@@ -48,7 +88,6 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: Theme.background,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xxl,
     paddingBottom: Spacing.xl,
