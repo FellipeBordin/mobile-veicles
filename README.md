@@ -1,8 +1,8 @@
 # 🚗 Vehicle Control
 
-Aplicativo mobile desenvolvido com **React Native + Expo** para gerenciamento de compra, despesas e venda de veículos.
+Aplicativo mobile desenvolvido com React Native e Expo para gerenciamento completo de compra, despesas e venda de veículos.
 
-O projeto foi criado para ajudar pequenos lojistas e revendedores a controlar todo o ciclo de compra e venda de automóveis, calculando automaticamente o investimento total e o lucro obtido em cada negociação.
+O sistema permite controlar todo o ciclo de negociação, registrando investimentos, despesas e lucro de cada veículo por meio de uma interface simples e organizada.
 
 ---
 
@@ -43,12 +43,11 @@ O projeto foi criado para ajudar pequenos lojistas e revendedores a controlar to
 
 O projeto foi estruturado seguindo separação de responsabilidades.
 
-```
 src
 │
 ├── components
-│   ├── common
-│   └── vehicle
+│ ├── common
+│ └── vehicle
 │
 ├── hooks
 │
@@ -61,7 +60,6 @@ src
 ├── utils
 │
 └── lib
-```
 
 ---
 
@@ -85,7 +83,6 @@ Além dos componentes reutilizáveis:
 - LoadingState
 - EmptyState
 - ErrorState
-
 
 ## 🚀 Como executar
 
@@ -134,5 +131,4 @@ Durante o desenvolvimento foram aplicados conceitos como:
 
 **Fellipe Bordin**
 
-- GitHub: https://github.com/FellipeBordin
-- LinkedIn: *(Adicionar link)*
+- LinkedIn: https://www.linkedin.com/in/fellipe-bordin/
