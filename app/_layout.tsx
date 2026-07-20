@@ -1,12 +1,34 @@
 import { Stack, usePathname, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
+import { ThemeProvider, useAppTheme } from "@/src/contexts/ThemeContexte";
 import { getToken } from "@/src/lib/session";
+import type { AppTheme } from "@/src/styles/theme";
 
 export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <AuthLayout />
+    </ThemeProvider>
+  );
+}
+
+function AuthLayout() {
   const router = useRouter();
   const pathname = usePathname();
+
+  const { theme, isDark } = useAppTheme();
+
   const [loading, setLoading] = useState(true);
+
+  const styles = createStyles(theme);
 
   useEffect(() => {
     let mounted = true;
@@ -14,7 +36,7 @@ export default function RootLayout() {
     async function checkAuth() {
       try {
         const token = await getToken();
-        const loggedIn = !!token;
+        const loggedIn = Boolean(token);
 
         if (!mounted) return;
 
@@ -30,10 +52,11 @@ export default function RootLayout() {
 
         if (loggedIn && isAuthPage) {
           router.replace("/");
-          return;
         }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
@@ -46,32 +69,61 @@ export default function RootLayout() {
 
   if (loading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#f5f5f5",
-          gap: 12,
-        }}
-      >
-        <ActivityIndicator size="large" />
-        <Text style={{ color: "#666" }}>Carregando...</Text>
-      </View>
+      <>
+        <StatusBar style={isDark ? "light" : "dark"} />
+
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={theme.accent}
+          />
+
+          <Text style={styles.loadingText}>
+            Carregando...
+          </Text>
+        </View>
+      </>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" />
-      <Stack.Screen name="register" />
-      <Stack.Screen name="forgot-password" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="new" />
-      <Stack.Screen name="vehicles/[id]" />
-      <Stack.Screen name="vehicles/[id]/expense" />
-      <Stack.Screen name="vehicles/[id]/sell" />
-      <Stack.Screen name="expenses/[id]/edit" />
-    </Stack>
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: theme.background,
+          },
+        }}
+      >
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="forgot-password" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="new" />
+        <Stack.Screen name="vehicles/[id]" />
+        <Stack.Screen name="vehicles/[id]/expense" />
+        <Stack.Screen name="vehicles/[id]/sell" />
+        <Stack.Screen name="expenses/[id]/edit" />
+      </Stack>
+    </>
   );
+}
+
+function createStyles(theme: AppTheme | Record<string, string>) {
+  return StyleSheet.create({
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 12,
+      backgroundColor: theme.background,
+    },
+
+    loadingText: {
+      color: theme.textSecondary,
+    },
+  });
 }
