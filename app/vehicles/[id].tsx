@@ -1,20 +1,21 @@
-import { ScrollView, Text, View, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { ExpenseItem } from "@/src/components/vehicle/ExpenseItem";
-import { MiniInfoCard } from "@/src/components/vehicle/MiniInfoCard";
-import { InfoBlock } from "@/src/components/vehicle/InfoBlock";
-import { formatBRL, formatDate } from "@/src/utils/formatters";
-import { Card } from "@/src/components/common/Card";
-import { useVehicleDetail } from "@/src/hooks/useVehicleDetail";
 import { Button } from "@/src/components/common/Button";
-import { LoadingState } from "@/src/components/common/LoadingState";
+import { Card } from "@/src/components/common/Card";
 import { EmptyState } from "@/src/components/common/EmptyState";
-import { VehicleHeader } from "@/src/components/vehicle/VehicleHeader";
-import { confirmAction } from "@/src/utils/confirm";
-import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
+import { LoadingState } from "@/src/components/common/LoadingState";
+import { ExpenseItem } from "@/src/components/vehicle/ExpenseItem";
+import { InfoBlock } from "@/src/components/vehicle/InfoBlock";
+import { MiniInfoCard } from "@/src/components/vehicle/MiniInfoCard";
 import { ProfitResult } from "@/src/components/vehicle/ProfitResult";
+import { VehicleHeader } from "@/src/components/vehicle/VehicleHeader";
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
+import { useVehicleDetail } from "@/src/hooks/useVehicleDetail";
 import { Radius } from "@/src/styles/radius";
+import { Spacing } from "@/src/styles/spacing";
+import { confirmAction } from "@/src/utils/confirm";
+import { formatBRL, formatDate } from "@/src/utils/formatters";
+
 export default function VehicleDetailScreen() {
   const {
     router,
@@ -25,6 +26,8 @@ export default function VehicleDetailScreen() {
     deleteVehicle,
     deleteExpense,
   } = useVehicleDetail();
+
+  const { theme } = useAppTheme();
 
   function handleDeleteExpense(expenseId: string) {
     confirmAction({
@@ -67,7 +70,15 @@ export default function VehicleDetailScreen() {
   const isSold = vehicle.status === "SOLD";
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={[
+        styles.container,
+        {
+          backgroundColor: theme.background,
+        },
+      ]}
+    >
       <Card>
         <VehicleHeader
           name={vehicle.name}
@@ -80,16 +91,16 @@ export default function VehicleDetailScreen() {
             icon="calendar-month"
             label="Data da compra"
             value={formatDate(vehicle.purchaseDate)}
-            bg={Theme.surfaceMuted}
-            iconColor={Theme.textSecondary}
+            bg={theme.surfaceMuted}
+            iconColor={theme.textSecondary}
           />
 
           <MiniInfoCard
             icon="sell"
             label="Data da venda"
             value={formatDate(vehicle.soldDate)}
-            bg={isSold ? Theme.successLight : Theme.surfaceMuted}
-            iconColor={isSold ? Theme.successDark : Theme.textSecondary}
+            bg={isSold ? theme.successLight : theme.surfaceMuted}
+            iconColor={isSold ? theme.successDark : theme.textSecondary}
           />
         </View>
 
@@ -98,16 +109,16 @@ export default function VehicleDetailScreen() {
             icon="receipt-long"
             label="Qtd. despesas"
             value={String(vehicle.expenses.length)}
-            bg={Theme.accentLight}
-            iconColor={Theme.accent}
+            bg={theme.accentLight}
+            iconColor={theme.accent}
           />
 
           <MiniInfoCard
             icon="account-balance-wallet"
             label="Investido"
             value={formatBRL(vehicle.totalInvested)}
-            bg={Theme.surfaceMuted}
-            iconColor={Theme.textSecondary}
+            bg={theme.surfaceMuted}
+            iconColor={theme.textSecondary}
           />
         </View>
 
@@ -122,7 +133,10 @@ export default function VehicleDetailScreen() {
               label: "Ex-proprietário",
               value: vehicle.previousOwnerName || "-",
             },
-            { label: "Telefone", value: vehicle.previousOwnerPhone || "-" },
+            {
+              label: "Telefone",
+              value: vehicle.previousOwnerPhone || "-",
+            },
           ]}
         />
 
@@ -134,12 +148,19 @@ export default function VehicleDetailScreen() {
               value:
                 vehicle.soldPrice != null ? formatBRL(vehicle.soldPrice) : "-",
             },
-            { label: "Comprador", value: vehicle.buyerName || "-" },
-            { label: "Telefone", value: vehicle.buyerPhone || "-" },
+            {
+              label: "Comprador",
+              value: vehicle.buyerName || "-",
+            },
+            {
+              label: "Telefone",
+              value: vehicle.buyerPhone || "-",
+            },
           ]}
         />
 
         <ProfitResult profit={vehicle.profit} />
+
         <View style={styles.actions}>
           <View style={styles.actionItem}>
             <Button
@@ -171,11 +192,40 @@ export default function VehicleDetailScreen() {
       <Card>
         <View style={styles.sectionHeader}>
           <View>
-            <Text style={styles.sectionEyebrow}>CUSTOS</Text>
-            <Text style={styles.sectionTitle}>Despesas</Text>
+            <Text
+              style={[
+                styles.sectionEyebrow,
+                {
+                  color: theme.accent,
+                },
+              ]}
+            >
+              CUSTOS
+            </Text>
+
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  color: theme.textPrimary,
+                },
+              ]}
+            >
+              Despesas
+            </Text>
           </View>
 
-          <Text style={styles.expenseCount}>{vehicle.expenses.length}</Text>
+          <Text
+            style={[
+              styles.expenseCount,
+              {
+                backgroundColor: theme.accentLight,
+                color: theme.accentDark,
+              },
+            ]}
+          >
+            {vehicle.expenses.length}
+          </Text>
         </View>
 
         {vehicle.expenses.length === 0 ? (
@@ -196,7 +246,9 @@ export default function VehicleDetailScreen() {
                 onEdit={() =>
                   router.push({
                     pathname: "/expenses/[id]/edit",
-                    params: { id: expense.id },
+                    params: {
+                      id: expense.id,
+                    },
                   })
                 }
                 onDelete={() => handleDeleteExpense(expense.id)}
@@ -219,8 +271,8 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xxl,
     paddingBottom: Spacing.xl,
     gap: Spacing.md,
-    backgroundColor: Theme.background,
   },
+
   actions: {
     flexDirection: "row",
     gap: Spacing.md,
@@ -229,6 +281,7 @@ const styles = StyleSheet.create({
   actionItem: {
     flex: 1,
   },
+
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -236,14 +289,12 @@ const styles = StyleSheet.create({
   },
 
   sectionEyebrow: {
-    color: Theme.accent,
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1,
   },
 
   sectionTitle: {
-    color: Theme.textPrimary,
     fontSize: 19,
     fontWeight: "800",
     marginTop: Spacing.xs,
@@ -253,8 +304,6 @@ const styles = StyleSheet.create({
     minWidth: 34,
     height: 34,
     borderRadius: Radius.full,
-    backgroundColor: Theme.accentLight,
-    color: Theme.accentDark,
     textAlign: "center",
     textAlignVertical: "center",
     fontSize: 14,
@@ -264,6 +313,7 @@ const styles = StyleSheet.create({
   expenseList: {
     gap: Spacing.md,
   },
+
   infoRow: {
     flexDirection: "row",
     gap: Spacing.md,

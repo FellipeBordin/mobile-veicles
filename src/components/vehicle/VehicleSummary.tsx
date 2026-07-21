@@ -2,10 +2,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
 import { Card } from "../common/Card";
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { formatBRL } from "../../utils/formatters";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 
 type VehicleSummaryProps = {
   summary: {
@@ -18,18 +18,46 @@ type VehicleSummaryProps = {
 };
 
 export function VehicleSummary({ summary }: VehicleSummaryProps) {
+  const { theme } = useAppTheme();
+
   const hasProfit = summary.totalProfit >= 0;
 
   return (
     <Card>
       <View style={styles.header}>
         <View>
-          <Text style={styles.eyebrow}>VISÃO GERAL</Text>
-          <Text style={styles.title}>Resumo da operação</Text>
+          <Text
+            style={[
+              styles.eyebrow,
+              {
+                color: theme.accent,
+              },
+            ]}
+          >
+            VISÃO GERAL
+          </Text>
+
+          <Text
+            style={[
+              styles.title,
+              {
+                color: theme.textPrimary,
+              },
+            ]}
+          >
+            Resumo da operação
+          </Text>
         </View>
 
-        <View style={styles.headerIcon}>
-          <MaterialIcons name="analytics" size={22} color={Theme.accent} />
+        <View
+          style={[
+            styles.headerIcon,
+            {
+              backgroundColor: theme.accentLight,
+            },
+          ]}
+        >
+          <MaterialIcons name="analytics" size={22} color={theme.accent} />
         </View>
       </View>
 
@@ -38,24 +66,24 @@ export function VehicleSummary({ summary }: VehicleSummaryProps) {
           label="Veículos"
           value={String(summary.totalVehicles)}
           icon="directions-car"
-          backgroundColor={Theme.accentLight}
-          iconColor={Theme.accent}
+          backgroundColor={theme.accentLight}
+          iconColor={theme.accent}
         />
 
         <SummaryCard
           label="Em estoque"
           value={String(summary.inStockCount)}
           icon="inventory-2"
-          backgroundColor={Theme.surfaceMuted}
-          iconColor={Theme.textSecondary}
+          backgroundColor={theme.surfaceMuted}
+          iconColor={theme.textSecondary}
         />
 
         <SummaryCard
           label="Vendidos"
           value={String(summary.soldCount)}
           icon="task-alt"
-          backgroundColor={Theme.successLight}
-          iconColor={Theme.successDark}
+          backgroundColor={theme.successLight}
+          iconColor={theme.successDark}
         />
       </View>
 
@@ -65,15 +93,22 @@ export function VehicleSummary({ summary }: VehicleSummaryProps) {
           value={formatBRL(summary.totalInvested)}
         />
 
-        <View style={styles.divider} />
+        <View
+          style={[
+            styles.divider,
+            {
+              backgroundColor: theme.border,
+            },
+          ]}
+        />
 
         <View
           style={[
             styles.resultCard,
             {
               backgroundColor: hasProfit
-                ? Theme.successLight
-                : Theme.dangerLight,
+                ? theme.successLight
+                : theme.dangerLight,
             },
           ]}
         >
@@ -81,17 +116,26 @@ export function VehicleSummary({ summary }: VehicleSummaryProps) {
             <MaterialIcons
               name={hasProfit ? "trending-up" : "trending-down"}
               size={20}
-              color={hasProfit ? Theme.successDark : Theme.dangerDark}
+              color={hasProfit ? theme.successDark : theme.dangerDark}
             />
 
-            <Text style={styles.resultLabel}>Resultado acumulado</Text>
+            <Text
+              style={[
+                styles.resultLabel,
+                {
+                  color: theme.textSecondary,
+                },
+              ]}
+            >
+              Resultado acumulado
+            </Text>
           </View>
 
           <Text
             style={[
               styles.resultValue,
               {
-                color: hasProfit ? Theme.successDark : Theme.dangerDark,
+                color: hasProfit ? theme.successDark : theme.dangerDark,
               },
             ]}
           >
@@ -118,14 +162,42 @@ function SummaryCard({
   backgroundColor,
   iconColor,
 }: SummaryCardProps) {
+  const { theme } = useAppTheme();
+
   return (
-    <View style={[styles.summaryCard, { backgroundColor }]}>
+    <View
+      style={[
+        styles.summaryCard,
+        {
+          backgroundColor,
+        },
+      ]}
+    >
       <View style={styles.summaryIcon}>
         <MaterialIcons name={icon} size={21} color={iconColor} />
       </View>
 
-      <Text style={styles.summaryValue}>{value}</Text>
-      <Text style={styles.summaryLabel}>{label}</Text>
+      <Text
+        style={[
+          styles.summaryValue,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+      >
+        {value}
+      </Text>
+
+      <Text
+        style={[
+          styles.summaryLabel,
+          {
+            color: theme.textSecondary,
+          },
+        ]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -136,10 +208,31 @@ type SummaryRowProps = {
 };
 
 function SummaryRow({ label, value }: SummaryRowProps) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.summaryRow}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+      <Text
+        style={[
+          styles.rowLabel,
+          {
+            color: theme.textSecondary,
+          },
+        ]}
+      >
+        {label}
+      </Text>
+
+      <Text
+        style={[
+          styles.rowValue,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+      >
+        {value}
+      </Text>
     </View>
   );
 }
@@ -152,14 +245,12 @@ const styles = StyleSheet.create({
   },
 
   eyebrow: {
-    color: Theme.accent,
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1,
   },
 
   title: {
-    color: Theme.textPrimary,
     fontSize: 18,
     fontWeight: "800",
     marginTop: Spacing.xs,
@@ -169,7 +260,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: Radius.md,
-    backgroundColor: Theme.accentLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -191,13 +281,11 @@ const styles = StyleSheet.create({
   },
 
   summaryValue: {
-    color: Theme.textPrimary,
     fontSize: 22,
     fontWeight: "900",
   },
 
   summaryLabel: {
-    color: Theme.textSecondary,
     fontSize: 12,
     lineHeight: 16,
     marginTop: Spacing.xs,
@@ -214,19 +302,16 @@ const styles = StyleSheet.create({
   },
 
   rowLabel: {
-    color: Theme.textSecondary,
     fontSize: 14,
   },
 
   rowValue: {
-    color: Theme.textPrimary,
     fontSize: 15,
     fontWeight: "800",
   },
 
   divider: {
     height: 1,
-    backgroundColor: Theme.border,
   },
 
   resultCard: {
@@ -242,7 +327,6 @@ const styles = StyleSheet.create({
   },
 
   resultLabel: {
-    color: Theme.textSecondary,
     fontSize: 13,
     fontWeight: "700",
   },

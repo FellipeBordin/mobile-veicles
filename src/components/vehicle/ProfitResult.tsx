@@ -1,36 +1,53 @@
-import { StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { StyleSheet, Text, View } from "react-native";
 
-import { formatBRL } from "@/src/utils/formatters";
-import { getProfitStyle } from "@/src/utils/VehicleHelpers";
-
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
+import { formatBRL } from "@/src/utils/formatters";
+import { getProfitStyle } from "@/src/utils/VehicleHelpers";
 
 type ProfitResultProps = {
   profit?: number | null;
 };
 
 export function ProfitResult({ profit }: ProfitResultProps) {
-  const style = getProfitStyle(profit);
+  const { theme } = useAppTheme();
+
+  const profitStyle = getProfitStyle(profit, theme);
 
   const icon =
     profit == null ? "remove" : profit >= 0 ? "trending-up" : "trending-down";
 
   return (
-    <View style={[styles.container, { backgroundColor: style.bg }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: profitStyle.bg,
+        },
+      ]}
+    >
       <View style={styles.header}>
-        <MaterialIcons name={icon} size={20} color={style.color} />
+        <MaterialIcons name={icon} size={20} color={profitStyle.color} />
 
-        <Text style={styles.label}>Lucro / Prejuízo</Text>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: theme.textSecondary,
+            },
+          ]}
+        >
+          Lucro / Prejuízo
+        </Text>
       </View>
 
       <Text
         style={[
           styles.value,
           {
-            color: style.color,
+            color: profitStyle.color,
           },
         ]}
       >
@@ -54,7 +71,6 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: Theme.textSecondary,
     fontSize: 13,
     fontWeight: "700",
   },

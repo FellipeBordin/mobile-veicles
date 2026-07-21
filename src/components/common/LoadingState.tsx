@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 import { Typography } from "@/src/styles/typography";
 
 type LoadingStateProps = {
@@ -13,15 +13,42 @@ export function LoadingState({
   message = "Carregando...",
   description = "Aguarde alguns instantes.",
 }: LoadingStateProps) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.indicatorContainer}>
-        <ActivityIndicator size="large" color={Theme.accent} />
+      <View
+        style={[
+          styles.indicatorContainer,
+          {
+            backgroundColor: theme.accentLight,
+          },
+        ]}
+      >
+        <ActivityIndicator size="large" color={theme.accent} />
       </View>
 
-      <Text style={styles.message}>{message}</Text>
+      <Text
+        style={[
+          styles.message,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+      >
+        {message}
+      </Text>
 
-      <Text style={styles.description}>{description}</Text>
+      <Text
+        style={[
+          styles.description,
+          {
+            color: theme.textSecondary,
+          },
+        ]}
+      >
+        {description}
+      </Text>
     </View>
   );
 }
@@ -39,20 +66,17 @@ const styles = StyleSheet.create({
     width: 86,
     height: 86,
     borderRadius: 999,
-    backgroundColor: Theme.accentLight,
     alignItems: "center",
     justifyContent: "center",
   },
 
   message: {
-    color: Theme.textPrimary,
     ...Typography.sectionTitle,
     textAlign: "center",
   },
 
   description: {
     maxWidth: 280,
-    color: Theme.textSecondary,
     ...Typography.body,
     textAlign: "center",
   },

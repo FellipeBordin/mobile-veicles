@@ -1,9 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 
 type MiniInfoCardProps = {
   icon: keyof typeof MaterialIcons.glyphMap;
@@ -20,17 +20,44 @@ export function MiniInfoCard({
   bg,
   iconColor,
 }: MiniInfoCardProps) {
+  const { theme } = useAppTheme();
+
   return (
-    <View style={[styles.container, { backgroundColor: bg }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: bg,
+          borderColor: theme.border,
+        },
+      ]}
+    >
       <View style={styles.iconContainer}>
         <MaterialIcons name={icon} size={21} color={iconColor} />
       </View>
 
-      <Text style={styles.value} numberOfLines={1}>
+      <Text
+        style={[
+          styles.value,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+        numberOfLines={1}
+      >
         {value}
       </Text>
 
-      <Text style={styles.label}>{label}</Text>
+      <Text
+        style={[
+          styles.label,
+          {
+            color: theme.textSecondary,
+          },
+        ]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -42,7 +69,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Theme.border,
   },
 
   iconContainer: {
@@ -50,13 +76,11 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    color: Theme.textPrimary,
     fontSize: 16,
     fontWeight: "800",
   },
 
   label: {
-    color: Theme.textSecondary,
     fontSize: 12,
     lineHeight: 16,
     marginTop: Spacing.xs,

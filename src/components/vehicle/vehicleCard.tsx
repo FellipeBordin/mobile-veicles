@@ -1,12 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Card } from "../common/Card";
-import { formatBRL } from "../../utils/formatters";
-import { Vehicle } from "../../types/vehicles";
+import { Card } from "@/src/components/common/Card";
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
+import { Vehicle } from "@/src/types/vehicles";
+import { formatBRL } from "@/src/utils/formatters";
 
 type VehicleCardProps = {
   vehicle: Vehicle;
@@ -14,9 +14,15 @@ type VehicleCardProps = {
 };
 
 export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
+  const { theme } = useAppTheme();
+
   const isSold = vehicle.status === "SOLD";
   const profit = vehicle.profit ?? 0;
   const hasProfit = profit >= 0;
+
+  const statusBackgroundColor = isSold ? theme.successLight : theme.accentLight;
+
+  const statusColor = isSold ? theme.successDark : theme.accent;
 
   return (
     <Pressable
@@ -30,22 +36,39 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
               style={[
                 styles.iconContainer,
                 {
-                  backgroundColor: isSold
-                    ? Theme.successLight
-                    : Theme.accentLight,
+                  backgroundColor: statusBackgroundColor,
                 },
               ]}
             >
               <MaterialIcons
                 name="directions-car"
                 size={24}
-                color={isSold ? Theme.successDark : Theme.accent}
+                color={statusColor}
               />
             </View>
 
             <View style={styles.titleContainer}>
-              <Text style={styles.name}>{vehicle.name}</Text>
-              <Text style={styles.plate}>Placa: {vehicle.plate}</Text>
+              <Text
+                style={[
+                  styles.name,
+                  {
+                    color: theme.textPrimary,
+                  },
+                ]}
+              >
+                {vehicle.name}
+              </Text>
+
+              <Text
+                style={[
+                  styles.plate,
+                  {
+                    color: theme.textSecondary,
+                  },
+                ]}
+              >
+                Placa: {vehicle.plate}
+              </Text>
             </View>
           </View>
 
@@ -53,9 +76,7 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
             style={[
               styles.statusBadge,
               {
-                backgroundColor: isSold
-                  ? Theme.successLight
-                  : Theme.accentLight,
+                backgroundColor: statusBackgroundColor,
               },
             ]}
           >
@@ -63,7 +84,7 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
               style={[
                 styles.statusDot,
                 {
-                  backgroundColor: isSold ? Theme.successDark : Theme.accent,
+                  backgroundColor: statusColor,
                 },
               ]}
             />
@@ -72,7 +93,7 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
               style={[
                 styles.statusText,
                 {
-                  color: isSold ? Theme.successDark : Theme.accentDark,
+                  color: isSold ? theme.successDark : theme.accentDark,
                 },
               ]}
             >
@@ -81,7 +102,14 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
           </View>
         </View>
 
-        <View style={styles.divider} />
+        <View
+          style={[
+            styles.divider,
+            {
+              backgroundColor: theme.border,
+            },
+          ]}
+        />
 
         <View style={styles.values}>
           <Row label="Compra" value={formatBRL(vehicle.purchasePrice)} />
@@ -103,8 +131,8 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
                   styles.resultContainer,
                   {
                     backgroundColor: hasProfit
-                      ? Theme.successLight
-                      : Theme.dangerLight,
+                      ? theme.successLight
+                      : theme.dangerLight,
                   },
                 ]}
               >
@@ -112,17 +140,26 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
                   <MaterialIcons
                     name={hasProfit ? "trending-up" : "trending-down"}
                     size={18}
-                    color={hasProfit ? Theme.successDark : Theme.dangerDark}
+                    color={hasProfit ? theme.successDark : theme.dangerDark}
                   />
 
-                  <Text style={styles.resultLabel}>Resultado</Text>
+                  <Text
+                    style={[
+                      styles.resultLabel,
+                      {
+                        color: theme.textSecondary,
+                      },
+                    ]}
+                  >
+                    Resultado
+                  </Text>
                 </View>
 
                 <Text
                   style={[
                     styles.resultValue,
                     {
-                      color: hasProfit ? Theme.successDark : Theme.dangerDark,
+                      color: hasProfit ? theme.successDark : theme.dangerDark,
                     },
                   ]}
                 >
@@ -131,14 +168,30 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
               </View>
             </>
           ) : (
-            <View style={styles.pendingContainer}>
+            <View
+              style={[
+                styles.pendingContainer,
+                {
+                  backgroundColor: theme.surfaceMuted,
+                },
+              ]}
+            >
               <MaterialIcons
                 name="schedule"
                 size={18}
-                color={Theme.textSecondary}
+                color={theme.textSecondary}
               />
 
-              <Text style={styles.pendingText}>Aguardando venda</Text>
+              <Text
+                style={[
+                  styles.pendingText,
+                  {
+                    color: theme.textSecondary,
+                  },
+                ]}
+              >
+                Aguardando venda
+              </Text>
             </View>
           )}
         </View>
@@ -154,11 +207,30 @@ type RowProps = {
 };
 
 function Row({ label, value, bold = false }: RowProps) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
+      <Text
+        style={[
+          styles.rowLabel,
+          {
+            color: theme.textSecondary,
+          },
+        ]}
+      >
+        {label}
+      </Text>
 
-      <Text style={[styles.rowValue, bold && styles.rowValueBold]}>
+      <Text
+        style={[
+          styles.rowValue,
+          {
+            color: theme.textPrimary,
+          },
+          bold && styles.rowValueBold,
+        ]}
+      >
         {value}
       </Text>
     </View>
@@ -166,6 +238,10 @@ function Row({ label, value, bold = false }: RowProps) {
 }
 
 const styles = StyleSheet.create({
+  pressable: {
+    borderRadius: Radius.xl,
+  },
+
   pressed: {
     opacity: 0.78,
     transform: [{ scale: 0.99 }],
@@ -179,10 +255,10 @@ const styles = StyleSheet.create({
   },
 
   vehicleInfo: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.md,
-    flex: 1,
   },
 
   iconContainer: {
@@ -198,13 +274,11 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    color: Theme.textPrimary,
     fontSize: 17,
     fontWeight: "800",
   },
 
   plate: {
-    color: Theme.textSecondary,
     fontSize: 13,
     marginTop: Spacing.xs,
   },
@@ -231,7 +305,6 @@ const styles = StyleSheet.create({
 
   divider: {
     height: 1,
-    backgroundColor: Theme.border,
   },
 
   values: {
@@ -245,12 +318,10 @@ const styles = StyleSheet.create({
   },
 
   rowLabel: {
-    color: Theme.textSecondary,
     fontSize: 14,
   },
 
   rowValue: {
-    color: Theme.textPrimary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -273,7 +344,6 @@ const styles = StyleSheet.create({
   },
 
   resultLabel: {
-    color: Theme.textSecondary,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -287,18 +357,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    backgroundColor: Theme.surfaceMuted,
     borderRadius: Radius.md,
     padding: Spacing.md,
     marginTop: Spacing.xs,
   },
 
   pendingText: {
-    color: Theme.textSecondary,
     fontSize: 13,
     fontWeight: "700",
-  },
-  pressable: {
-    borderRadius: Radius.xl,
   },
 });

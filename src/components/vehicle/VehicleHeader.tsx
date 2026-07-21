@@ -1,9 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 
 type VehicleHeaderProps = {
   name: string;
@@ -12,9 +12,11 @@ type VehicleHeaderProps = {
 };
 
 export function VehicleHeader({ name, plate, isSold }: VehicleHeaderProps) {
-  const statusBackground = isSold ? Theme.successLight : Theme.accentLight;
+  const { theme } = useAppTheme();
 
-  const statusColor = isSold ? Theme.successDark : Theme.accentDark;
+  const statusBackground = isSold ? theme.successLight : theme.accentLight;
+
+  const statusColor = isSold ? theme.successDark : theme.accentDark;
 
   return (
     <View style={styles.container}>
@@ -31,7 +33,15 @@ export function VehicleHeader({ name, plate, isSold }: VehicleHeaderProps) {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text
+            style={[
+              styles.name,
+              {
+                color: theme.textPrimary,
+              },
+            ]}
+            numberOfLines={1}
+          >
             {name}
           </Text>
 
@@ -39,10 +49,19 @@ export function VehicleHeader({ name, plate, isSold }: VehicleHeaderProps) {
             <MaterialIcons
               name="confirmation-number"
               size={15}
-              color={Theme.textMuted}
+              color={theme.textMuted}
             />
 
-            <Text style={styles.plate}>{plate}</Text>
+            <Text
+              style={[
+                styles.plate,
+                {
+                  color: theme.textSecondary,
+                },
+              ]}
+            >
+              {plate}
+            </Text>
           </View>
         </View>
       </View>
@@ -107,7 +126,6 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    color: Theme.textPrimary,
     fontSize: 24,
     lineHeight: 30,
     fontWeight: "900",
@@ -121,7 +139,6 @@ const styles = StyleSheet.create({
   },
 
   plate: {
-    color: Theme.textSecondary,
     fontSize: 14,
     fontWeight: "700",
     letterSpacing: 0.4,

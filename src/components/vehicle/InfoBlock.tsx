@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 
 type InfoRow = {
   label: string;
@@ -15,19 +15,65 @@ type InfoBlockProps = {
 };
 
 export function InfoBlock({ title, rows }: InfoBlockProps) {
+  const { theme } = useAppTheme();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.surfaceMuted,
+          borderColor: theme.border,
+        },
+      ]}
+    >
+      <Text
+        style={[
+          styles.title,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+      >
+        {title}
+      </Text>
 
       {rows.map((row, index) => (
         <View key={row.label}>
           <View style={styles.row}>
-            <Text style={styles.label}>{row.label}</Text>
+            <Text
+              style={[
+                styles.label,
+                {
+                  color: theme.textSecondary,
+                },
+              ]}
+            >
+              {row.label}
+            </Text>
 
-            <Text style={styles.value}>{row.value}</Text>
+            <Text
+              style={[
+                styles.value,
+                {
+                  color: theme.textPrimary,
+                },
+              ]}
+            >
+              {row.value}
+            </Text>
           </View>
 
-          {index < rows.length - 1 && <View style={styles.divider} />}
+          {index < rows.length - 1 && (
+            <View
+              style={[
+                styles.divider,
+                {
+                  backgroundColor: theme.border,
+                },
+              ]}
+            />
+          )}
         </View>
       ))}
     </View>
@@ -36,16 +82,13 @@ export function InfoBlock({ title, rows }: InfoBlockProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Theme.surfaceMuted,
     borderRadius: Radius.xl,
     borderWidth: 1,
-    borderColor: Theme.border,
     padding: Spacing.md,
     gap: Spacing.sm,
   },
 
   title: {
-    color: Theme.textPrimary,
     fontSize: 17,
     fontWeight: "800",
     marginBottom: Spacing.xs,
@@ -61,13 +104,11 @@ const styles = StyleSheet.create({
 
   label: {
     flex: 1,
-    color: Theme.textSecondary,
     fontSize: 14,
   },
 
   value: {
     flex: 1,
-    color: Theme.textPrimary,
     fontSize: 14,
     fontWeight: "700",
     textAlign: "right",
@@ -75,6 +116,5 @@ const styles = StyleSheet.create({
 
   divider: {
     height: 1,
-    backgroundColor: Theme.border,
   },
 });

@@ -7,15 +7,16 @@ import { Button } from "@/src/components/common/Button";
 import { Card } from "@/src/components/common/Card";
 import { Input } from "@/src/components/common/Input";
 import { ScreenContainer } from "@/src/components/common/ScreenContainer";
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { apiFetch } from "@/src/lib/api";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 import { Typography } from "@/src/styles/typography";
 import { showAlert } from "@/src/utils/alert";
 
 export default function NewExpenseScreen() {
   const router = useRouter();
+  const { theme } = useAppTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [note, setNote] = useState("");
@@ -83,14 +84,37 @@ export default function NewExpenseScreen() {
     <ScreenContainer>
       <Card>
         <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <MaterialIcons name="receipt-long" size={28} color={Theme.accent} />
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: theme.accentLight,
+              },
+            ]}
+          >
+            <MaterialIcons name="receipt-long" size={28} color={theme.accent} />
           </View>
 
           <View style={styles.headerContent}>
-            <Text style={styles.title}>Nova despesa</Text>
+            <Text
+              style={[
+                styles.title,
+                {
+                  color: theme.textPrimary,
+                },
+              ]}
+            >
+              Nova despesa
+            </Text>
 
-            <Text style={styles.subtitle}>
+            <Text
+              style={[
+                styles.subtitle,
+                {
+                  color: theme.textSecondary,
+                },
+              ]}
+            >
               Informe o que foi gasto e o valor
             </Text>
           </View>
@@ -146,7 +170,6 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: Radius.lg,
-    backgroundColor: Theme.accentLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -157,13 +180,11 @@ const styles = StyleSheet.create({
 
   title: {
     ...Typography.screenTitle,
-    color: Theme.textPrimary,
-    fontSize: 24, // sobrescreve o 30 para ficar igual às outras telas
+    fontSize: 24,
   },
 
   subtitle: {
     ...Typography.body,
-    color: Theme.textSecondary,
     marginTop: Spacing.xs,
   },
 

@@ -1,9 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 
 type HomeHeaderProps = {
   userName: string;
@@ -16,16 +16,41 @@ export function HomeHeader({
   onNewVehicle,
   onLogout,
 }: HomeHeaderProps) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={styles.eyebrow}>
+        <Text
+          style={[
+            styles.eyebrow,
+            {
+              color: theme.accent,
+            },
+          ]}
+        >
           {userName ? `Olá, ${userName}` : "Gestão de veículos"}
         </Text>
 
-        <Text style={styles.title}>Veículos</Text>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: theme.textPrimary,
+            },
+          ]}
+        >
+          Veículos
+        </Text>
 
-        <Text style={styles.subtitle}>
+        <Text
+          style={[
+            styles.subtitle,
+            {
+              color: theme.textSecondary,
+            },
+          ]}
+        >
           Controle de compra, despesas, venda e resultado.
         </Text>
       </View>
@@ -35,22 +60,27 @@ export function HomeHeader({
           onPress={onNewVehicle}
           style={({ pressed }) => [
             styles.iconButton,
-            styles.newButton,
+            {
+              backgroundColor: theme.primary,
+            },
             pressed && styles.pressed,
           ]}
         >
-          <MaterialIcons name="add" size={22} color={Theme.surface} />
+          <MaterialIcons name="add" size={22} color={theme.surface} />
         </Pressable>
 
         <Pressable
           onPress={onLogout}
           style={({ pressed }) => [
             styles.iconButton,
-            styles.logoutButton,
+            {
+              backgroundColor: theme.dangerLight,
+              borderColor: theme.dangerBorder,
+            },
             pressed && styles.pressed,
           ]}
         >
-          <MaterialIcons name="logout" size={21} color={Theme.dangerDark} />
+          <MaterialIcons name="logout" size={21} color={theme.dangerDark} />
         </Pressable>
       </View>
     </View>
@@ -71,21 +101,18 @@ const styles = StyleSheet.create({
   },
 
   eyebrow: {
-    color: Theme.accent,
     fontSize: 13,
     fontWeight: "700",
     marginBottom: Spacing.xs,
   },
 
   title: {
-    color: Theme.textPrimary,
     fontSize: 30,
     lineHeight: 36,
     fontWeight: "800",
   },
 
   subtitle: {
-    color: Theme.textSecondary,
     fontSize: 14,
     lineHeight: 20,
     marginTop: Spacing.xs,
@@ -103,16 +130,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  newButton: {
-    backgroundColor: Theme.primary,
-  },
-
-  logoutButton: {
-    backgroundColor: Theme.dangerLight,
     borderWidth: 1,
-    borderColor: Theme.dangerBorder,
+    borderColor: "transparent",
   },
 
   pressed: {

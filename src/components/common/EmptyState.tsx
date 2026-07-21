@@ -3,9 +3,9 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { Button } from "./Button";
 
+import { useAppTheme } from "@/src/contexts/ThemeContexte";
 import { Radius } from "@/src/styles/radius";
 import { Spacing } from "@/src/styles/spacing";
-import { Theme } from "@/src/styles/theme";
 import { Typography } from "@/src/styles/typography";
 
 type EmptyStateProps = {
@@ -21,23 +21,50 @@ export function EmptyState({
   buttonTitle,
   onPress,
 }: EmptyStateProps) {
+  const { theme } = useAppTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <MaterialIcons name="directions-car" size={42} color={Theme.accent} />
+      <View
+        style={[
+          styles.iconContainer,
+          {
+            backgroundColor: theme.accentLight,
+          },
+        ]}
+      >
+        <MaterialIcons name="directions-car" size={42} color={theme.accent} />
       </View>
 
-      <Text style={styles.title}>{title}</Text>
+      <Text
+        style={[
+          styles.title,
+          {
+            color: theme.textPrimary,
+          },
+        ]}
+      >
+        {title}
+      </Text>
 
-      <Text style={styles.message}>{message}</Text>
+      <Text
+        style={[
+          styles.message,
+          {
+            color: theme.textSecondary,
+          },
+        ]}
+      >
+        {message}
+      </Text>
 
-      {buttonTitle && onPress ? (
+      {buttonTitle && onPress && (
         <Button
           title={buttonTitle}
           icon="add-circle-outline"
           onPress={onPress}
         />
-      ) : null}
+      )}
     </View>
   );
 }
@@ -45,37 +72,25 @@ export function EmptyState({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-
     paddingVertical: Spacing.xxl,
-
     gap: Spacing.md,
   },
 
   iconContainer: {
     width: 86,
     height: 86,
-
     borderRadius: Radius.full,
-
-    backgroundColor: Theme.accentLight,
-
     alignItems: "center",
     justifyContent: "center",
   },
 
   title: {
-    color: Theme.textPrimary,
-
     ...Typography.sectionTitle,
   },
 
   message: {
     maxWidth: 280,
-
-    color: Theme.textSecondary,
-
     ...Typography.body,
-
     textAlign: "center",
   },
 });
